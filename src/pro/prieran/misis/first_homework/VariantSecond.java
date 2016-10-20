@@ -58,12 +58,11 @@ public class VariantSecond {
 
     private synchronized static double iteration(double[][] matrix) {
         final double EPS = 1E-4;
+        double lambda = Double.NaN;
         double[] y = new double[matrix.length];
-        double[] yKMinusTwo = new double[matrix.length];
-        double[] yKMinusOne = new double[matrix.length];
         double[] x = new double[matrix.length];
         double[] xKMinusOne = new double[matrix.length];
-        double[] lambdas = new double[matrix.length];
+
         Random random = new Random();
         for (int i = 0; i < y.length; i++) {
             y[i] = Math.abs(random.nextDouble()) + 0.5;
@@ -78,9 +77,8 @@ public class VariantSecond {
             xKMinusOne[i] = y[i] / abs;
         }
 
-        int numberOfIterations = 6;
         outer:
-        for (int k = 1; k <= numberOfIterations; k++) {
+        for (int k = 1; k <= 100; k++) {
             y = Utils.multiply(matrix, xKMinusOne);
 
             abs = 0;
@@ -93,24 +91,12 @@ public class VariantSecond {
                 x[i] = y[i] / abs;
             }
 
-            if (k == numberOfIterations - 2) {
-                yKMinusTwo = Arrays.copyOf(y, y.length);
-                System.out.print("y-2: ");
-                Utils.printArray(y);
-            }
-
-            if (k == numberOfIterations - 1) {
-                yKMinusOne = Arrays.copyOf(y, y.length);
-                System.out.print("y-1: ");
-                Utils.printArray(y);
-            }
-
-            for (int i = 0; i < lambdas.length; i++) {
+            for (int i = 0; i < xKMinusOne.length; i++) {
                 if (xKMinusOne[i] > EPS) {
-                    lambdas[i] = y[i] / xKMinusOne[i];
                     if (Math.abs(xKMinusOne[i] - x[i]) < EPS) {
-                        System.out.println("STOP on k=" + k);
-                        System.out.println("First eigenvalue = " + lambdas[i]);
+                        System.out.println("Stopped on " + k + " iterations");
+                        lambda = y[i] / xKMinusOne[i];
+                        System.out.println("First eigenvalue = " + lambda);
                         break outer;
                     }
                 }
@@ -119,35 +105,9 @@ public class VariantSecond {
             xKMinusOne = Arrays.copyOf(x, x.length);
         }
 
-        double lambda = 0;
-        for (int i = 0; i < lambdas.length; i++) {
-            lambda += lambdas[i];
-        }
-        lambda /= lambdas.length;
-
-        double[] lambdasTwo = new double[y.length];
-        for (int i = 0; i < lambdasTwo.length; i++) {
-            System.out.println("LambdaTwo, i = " + i);
-            System.out.println((y[i] - lambda * yKMinusOne[i]));
-            System.out.println((yKMinusOne[i] - lambda * yKMinusTwo[i]));
-            lambdasTwo[i] = (y[i] - lambda * yKMinusOne[i])
-                    / (yKMinusOne[i] - lambda * yKMinusTwo[i]);
-        }
-
-        double lambdaTwo = 0;
-        for (int i = 0; i < lambdasTwo.length; i++) {
-            lambdaTwo += lambdasTwo[i];
-        }
-        lambdaTwo /= lambdasTwo.length;
-
-        System.out.print("First eigenvalue: ");
-        Utils.printArray(lambdas);
-        System.out.print("First eigenvector: ");
+        System.out.print("First eigenvector = ");
         Utils.printArray(x);
 
-        System.out.printf("Second eigenvalue: %.2f\n", lambdaTwo);
-        System.out.print("Second eigenvalue: ");
-        Utils.printArray(lambdasTwo);
         return lambda;
     }
 }
