@@ -58,44 +58,23 @@ public class VariantFirst {
     private static double det(double[][] matrix) {
         double[][] a = Utils.copy(matrix);
         int n = a.length;
+        double[][] t = new double[n][n];
 
-        double det = 1;
-        for (int i = 0; i < n; i++) {
-            int k = i; // Индекс максимального по модулю элемента в строке
-            for (int j = i + 1; j < n; j++) {
-                if (Math.abs(a[j][i]) > Math.abs(a[k][i])) {
-                    k = j;
-                }
-            }
+        for (int k = 0; k < n - 1; k++) {
+            for (int i = k + 1; i < n; i++) {
+                t[i][k] = a[i][k] / a[k][k];
 
-            // Если строка пустая
-            if (Math.abs(a[k][i]) < EPS) {
-                det = 0;
-                break;
-            }
-
-            // Меняем k-ую строку с i-ой
-            if (i != k) {
-                double[] temp = a[k];
-                a[k] = a[i];
-                a[i] = temp;
-
-                det = -det;
-            }
-
-            det *= a[i][i];
-            for (int j = i + 1; j < n; j++) {
-                a[i][j] /= a[i][i];
-            }
-
-            for (int j = 0; j < n; j++) {
-                if (j != i && Math.abs(a[j][i]) > EPS) {
-                    for (int t = i + 1; t < n; t++) {
-                        a[j][t] -= a[i][t] * a[j][i];
-                    }
+                for (int j = k + 1; j < n; j++) {
+                    a[i][j] -= t[i][k] * a[k][j];
                 }
             }
         }
+
+        double det = a[0][0];
+        for (int k = 1; k < n; k++) {
+            det *= a[k][k];
+        }
+
         return det;
     }
 }

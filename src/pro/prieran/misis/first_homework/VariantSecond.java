@@ -3,91 +3,56 @@ package pro.prieran.misis.first_homework;
 import pro.prieran.misis.Utils;
 
 public class VariantSecond {
+    private static final double EPS = 1E-9;
+
     public static void main(String[] args) {
-        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
+//        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
+//        double[][] matrix = {{3, 2, -5}, {2, -1, 3}, {1, 2, -1}};
+//        double[][] matrix = {{1, 2, 4}, {5, 1, 2}, {3, -1, 1}};
+        double[][] matrix = {{2, 3, 2, 2}, {-1, -1, 0, -1}, {-2, -2, -2, -1}, {3, 2, 2, 2}};
 
-        System.out.println("Invert matrix:");
+        System.out.println("Inverted matrix:");
         Utils.printMatrix(invert(matrix));
-
         System.out.println();
 
         iteration(matrix);
     }
 
-
     private static double[][] invert(double matrix[][]) {
         double[][] a = Utils.copy(matrix);
         int n = a.length;
-        double x[][] = new double[n][n];
-        double b[][] = new double[n][n];
-        int index[] = new int[n];
-        for (int i = 0; i < n; ++i)
-            b[i][i] = 1;
-
-        // Преобразование в верхнетреугольную
-        gaussian(a, index);
-
-        for (int i = 0; i < n - 1; ++i) {
-            for (int j = i + 1; j < n; ++j) {
-                for (int k = 0; k < n; ++k) {
-                    b[index[j]][k] -= a[index[j]][i] * b[index[i]][k];
-                }
-            }
-        }
-
+        double identity[][] = new double[n][n];
         for (int i = 0; i < n; ++i) {
-            x[n - 1][i] = b[index[n - 1]][i] / a[index[n - 1]][n - 1];
-            for (int j = n - 2; j >= 0; --j) {
-                x[j][i] = b[index[j]][i];
-                for (int k = j + 1; k < n; ++k) {
-                    x[j][i] -= a[index[j]][k] * x[k][i];
+            identity[i][i] = 1;
+        }
+        double[][] temp = new double[n][n];
+        double inverse[][] = new double[n][n];
+
+        for (int k = 0; k < n - 1; k++) {
+            for (int i = k + 1; i < n; i++) {
+                temp[i][k] = a[i][k] / a[k][k];
+                for (int e = 0; e < n; e++) {
+                    identity[i][e] -= temp[i][k] * identity[k][e];
                 }
-                x[j][i] /= a[index[j]][j];
-            }
-        }
-        return x;
-    }
 
-    private static void gaussian(double a[][], int index[]) {
-        int n = index.length;
-        double c[] = new double[n];
-
-        for (int i = 0; i < n; ++i) {
-            index[i] = i;
-        }
-
-        for (int i = 0; i < n; ++i) {
-            double c1 = 0;
-            for (int j = 0; j < n; ++j) {
-                double c0 = Math.abs(a[i][j]);
-                if (c0 > c1) c1 = c0;
-            }
-            c[i] = c1;
-        }
-
-        int k = 0;
-        for (int j = 0; j < n - 1; ++j) {
-            double pi1 = 0;
-            for (int i = j; i < n; ++i) {
-                double pi0 = Math.abs(a[index[i]][j]);
-                pi0 /= c[index[i]];
-                if (pi0 > pi1) {
-                    pi1 = pi0;
-                    k = i;
-                }
-            }
-
-            int itmp = index[j];
-            index[j] = index[k];
-            index[k] = itmp;
-            for (int i = j + 1; i < n; ++i) {
-                double pj = a[index[i]][j] / a[index[j]][j];
-                a[index[i]][j] = pj;
-                for (int l = j + 1; l < n; ++l) {
-                    a[index[i]][l] -= pj * a[index[j]][l];
+                for (int j = k + 1; j < n; j++) {
+                    a[i][j] -= temp[i][k] * a[k][j];
                 }
             }
         }
+
+        for (int e = 0; e < n; e++) {
+            inverse[n - 1][e] = identity[n - 1][e] / a[n - 1][n - 1];
+            for (int k = n - 2; k >= 0; k--) {
+                inverse[k] = identity[k];
+                for (int j = k + 1; j < n; j++) {
+                    inverse[k][e] -= a[k][j] * inverse[j][e];
+                }
+                inverse[k][e] /= a[k][k];
+            }
+        }
+
+        return inverse;
     }
 
     private synchronized static double iteration(double[][] matrix) {
