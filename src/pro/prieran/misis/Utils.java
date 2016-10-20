@@ -52,9 +52,9 @@ public class Utils {
         }
 
         double[] product = new double[first.length];
-        for (int i = 0; i < product.length; i++) {
+        for (int i = 0; i < product.length; i++) { // Строка
             for (int k = 0; k < first.length; k++) {
-                product[i] += first[k][i] * second[k];
+                product[i] += first[i][k] * second[k];
             }
         }
 
