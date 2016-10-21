@@ -9,7 +9,7 @@ import java.util.List;
 
 public class DiffSolver {
     @NotNull
-    public List<Point> solve(Function function, Iterator iterator, double y0, double x0, double step, double fromX, double toX) {
+    public List<Point> solve(@NotNull Function function, @NotNull Iterator iterator, double y0, double x0, double step, double fromX, double toX) {
         if (fromX > toX || x0 > fromX || step <= 0) {
             throw new IllegalArgumentException();
         }

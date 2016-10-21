@@ -13,11 +13,7 @@ public class Utils {
     }
 
     public static void printArray(double[] array) {
-        System.out.print("| ");
-        for (double value : array) {
-            System.out.printf("%6.2f ", value);
-        }
-        System.out.println("|");
+        printArray(array, 2);
     }
 
     public static void printArray(double[] array, int accuracy) {

@@ -13,18 +13,22 @@ public class Main {
         Euler euler = new Euler();
         RungeKutta rungeKutta = new RungeKutta();
 
-        List<Point> eulerPoints = solver.solve(Main::test, euler, 1, 2, step, 11, 12);
-        List<Point> kuttaPoints = solver.solve(Main::test, rungeKutta, 1, 2, step, 11, 12);
+        List<Point> eulerPoints = solver.solve(Main::test, euler, 0, 0, step, 0, 2);
+        List<Point> kuttaPoints = solver.solve(Main::test, rungeKutta, 0, 0, step, 0, 2);
 
         for (int i = 0; i < eulerPoints.size() && i < kuttaPoints.size(); i++) {
             Point eiler = eulerPoints.get(i);
-            Point kutta = eulerPoints.get(i);
-//            System.out.println("x = " + eiler.x + ", EilerY = " + eiler.y + ", kuttaY = " + kutta.y);
-            System.out.println("i=" + i + ", diff=" + (eiler.y - kutta.y));
+            Point kutta = kuttaPoints.get(i);
+//            System.out.printf(Locale.US, "i=%6d, x = %6.4f, EilerY = %6.6f, kuttaY = %6.6f", i, eiler.x, eiler.y, kutta.y);
+//            System.out.printf(Locale.US, ", diff=%6.6f\n", (eiler.y - kutta.y));
+            double truue = Math.exp(Math.cos(2 * eiler.x) - eiler.x / 2) * (2 * Math.sin(2 * eiler.x) - 1 / 2);
+            System.out.printf("diffEuler=%.8f", (truue - eiler.y));
+            System.out.printf(", diffKutta=%.8f", (truue - kutta.y));
+            System.out.printf(", diffDiff=%.8f\n", ((truue - eiler.y) - (truue - kutta.y)));
         }
     }
 
     private static double test(double x, double y) {
-        return Math.sin(x * y) / Math.sqrt(x * y);
+        return Math.exp(Math.cos(2 * x) - x / 2);
     }
 }
