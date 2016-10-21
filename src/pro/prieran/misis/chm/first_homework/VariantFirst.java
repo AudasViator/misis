@@ -1,6 +1,6 @@
-package pro.prieran.misis.first_homework;
+package pro.prieran.misis.chm.first_homework;
 
-import pro.prieran.misis.Utils;
+import pro.prieran.misis.chm.Utils;
 
 public class VariantFirst {
     private static final double EPS = 1E-9;

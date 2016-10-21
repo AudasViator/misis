@@ -1,4 +1,4 @@
-package pro.prieran.misis;
+package pro.prieran.misis.chm;
 
 import java.util.Arrays;
 

@@ -1,6 +1,6 @@
-package pro.prieran.misis.first_homework;
+package pro.prieran.misis.chm.first_homework;
 
-import pro.prieran.misis.Utils;
+import pro.prieran.misis.chm.Utils;
 
 import java.util.Arrays;
 import java.util.Random;
