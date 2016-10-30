@@ -3,11 +3,12 @@ package pro.prieran.misis.chm.first_homework;
 import pro.prieran.misis.chm.Utils;
 
 import java.util.Arrays;
-import java.util.Random;
 
 public class VariantSecond {
+
     public static void main(String[] args) {
 //        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
+//        double[][] matrix = {{4, 1, 0}, {1, 2, 1}, {0, 1, 1}}; // 4.46, 2.24, 0.30
 //        double[][] matrix = {{0, 2}, {3, 5}};  // 6, -1
         double[][] matrix = {{17, 6}, {6, 8}};  // 20, 5
 //        double[][] matrix = {{2, 3, 2, 2}, {-1, -1, 0, -1}, {-2, -2, -2, -1}, {3, 2, 2, 2}}; // Обратная
@@ -57,15 +58,16 @@ public class VariantSecond {
     }
 
     private synchronized static double iteration(double[][] matrix) {
+        final int MAX_ITERATION = 100;
         final double EPS = 1E-4;
         double lambda = Double.NaN;
         double[] y = new double[matrix.length];
         double[] x = new double[matrix.length];
         double[] xKMinusOne = new double[matrix.length];
+        double[][] allVectors = new double[MAX_ITERATION][];
 
-        Random random = new Random();
         for (int i = 0; i < y.length; i++) {
-            y[i] = Math.abs(random.nextDouble()) + 0.5;
+            y[i] = 1;
         }
 
         double abs = 0;
@@ -77,9 +79,16 @@ public class VariantSecond {
             xKMinusOne[i] = y[i] / abs;
         }
 
+        int k = 1;
         outer:
-        for (int k = 1; k <= 100; k++) {
+        for (; k <= MAX_ITERATION; k++) {
             y = Utils.multiply(matrix, xKMinusOne);
+
+            if (k == 1) {
+                allVectors[0] = Arrays.copyOf(y, y.length);
+            } else {
+                allVectors[k - 1] = Arrays.copyOf(Utils.multiply(matrix, allVectors[k - 2]), allVectors[k - 2].length);
+            }
 
             abs = 0;
             for (int i = 0; i < y.length; i++) {
@@ -94,7 +103,7 @@ public class VariantSecond {
             for (int i = 0; i < xKMinusOne.length; i++) {
                 if (xKMinusOne[i] > EPS) {
                     if (Math.abs(xKMinusOne[i] - x[i]) < EPS) {
-                        System.out.println("Stopped on " + k + " iterations");
+                        System.out.println("Stopped on " + k + " iteration");
                         lambda = y[i] / xKMinusOne[i];
                         System.out.println("First eigenvalue = " + lambda);
                         break outer;
@@ -107,6 +116,42 @@ public class VariantSecond {
 
         System.out.print("First eigenvector = ");
         Utils.printArray(x);
+        System.out.println();
+
+        for (int j = 1; j < k - 1; j++) {
+            double[] lambdasTwo = new double[matrix.length];
+            for (int i = 0; i < lambdasTwo.length; i++) {
+                double up = allVectors[j + 1][i] - lambda * allVectors[j][i];
+                double down = allVectors[j][i] - lambda * allVectors[j - 1][i];
+                lambdasTwo[i] = up / down;
+            }
+
+            System.out.printf("%2d. Second eigenvalue = ", j);
+            double lambdaTwo = 0;
+            for (int i = 0; i < lambdasTwo.length; i++) {
+                lambdaTwo += lambdasTwo[i];
+            }
+            lambdaTwo /= lambdasTwo.length;
+            System.out.printf("%4f", lambdaTwo);
+
+            double[] secondEigenvector = new double[matrix.length];
+            for (int i = 0; i < secondEigenvector.length; i++) {
+                secondEigenvector[i] = allVectors[j + 1][i] - lambda * allVectors[j][i];
+            }
+
+            double absSecond = 0;
+            for (int i = 0; i < secondEigenvector.length; i++) {
+                absSecond += secondEigenvector[i] * secondEigenvector[i];
+            }
+            absSecond = Math.sqrt(absSecond);
+            for (int i = 0; i < secondEigenvector.length; i++) {
+                secondEigenvector[i] /= absSecond;
+            }
+
+            System.out.print(";  Second eigenvector = ");
+            Utils.printArray(secondEigenvector, 4);
+            System.out.println();
+        }
 
         return lambda;
     }

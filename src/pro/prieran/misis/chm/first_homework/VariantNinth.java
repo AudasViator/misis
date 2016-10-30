@@ -6,20 +6,23 @@ import pro.prieran.misis.chm.Utils;
 public class VariantNinth {
     public static void main(String[] args) {
 //        double[][] matrix = {{2, 1}, {6, 1}}; //4, -1
-        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
+//        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
 //        double[][] matrix = {{0, 2}, {3, 5}};  // 6, -1
 //        double[][] matrix = {{17, 6}, {6, 8}};  // 20, 5
+        double[][] matrix = {{4, 1, 0}, {1, 2, 1}, {0, 1, 1}}; // 4.46, 2.24, 0.30
 
         System.out.print("Eigenvalues: ");
         double[] eigenvalues = eigenvaluesLu(matrix);
         Utils.printArray(eigenvalues);
+        System.out.println();
 
-        for (int i = 0; i < eigenvalues.length; i++) {
-            matrix[i][i] -= eigenvalues[0];
-        }
-        Utils.printMatrix(matrix);
 
-        gauss(matrix);
+//        for (int i = 0; i < eigenvalues.length; i++) {
+//            matrix[i][i] -= eigenvalues[0];
+//        }
+//        Utils.printMatrix(matrix);
+
+//        gauss(matrix);
     }
 
     private static void gauss(double[][] matrix) {

@@ -9,6 +9,7 @@ public class Utils {
     public static void printMatrix(double[][] matrix) {
         for (double[] line : matrix) {
             printArray(line);
+            System.out.println();
         }
     }
 
@@ -21,7 +22,7 @@ public class Utils {
         for (double value : array) {
             System.out.printf("%6." + accuracy + "f ", value);
         }
-        System.out.println("|");
+        System.out.print("|");
     }
 
     public static double[][] multiply(double[][] first, double[][] second) {
