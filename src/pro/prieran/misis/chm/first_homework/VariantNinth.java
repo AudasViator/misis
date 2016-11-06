@@ -4,14 +4,12 @@ import pro.prieran.misis.chm.Utils;
 
 import java.util.Arrays;
 
-
 public class VariantNinth {
     public static void main(String[] args) {
 //        double[][] matrix = {{2, 1}, {6, 1}}; //4, -1
-//        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
-//        double[][] matrix = {{0, 2}, {3, 5}};  // 6, -1
+        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
 //        double[][] matrix = {{17, 6}, {6, 8}};  // 20, 5
-        double[][] matrix = {{4, 1, 0}, {1, 2, 1}, {0, 1, 1}}; // 4.46, 2.24, 0.30
+//        double[][] matrix = {{4, 1, 0}, {1, 2, 1}, {0, 1, 1}}; // 4.46, 2.24, 0.30
 
         System.out.print("Eigenvalues: ");
         double[] eigenvalues = eigenvaluesLu(matrix);
@@ -26,26 +24,10 @@ public class VariantNinth {
             double[][] invertedMatrix = invert(copyMatrix);
 
             double[] eigenvector = reverseIterationWithShift(invertedMatrix);
-            System.out.print((i + 1) + " eigenvector: ");
+            System.out.printf("Eigenvector for %5.2f = ", eigenvalues[i]);
             Utils.printArray(eigenvector);
             System.out.println();
         }
-    }
-
-
-    private static void eigenVectors() {
-        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
-        double[][] matrixMinusEigenvalues = Utils.copy(matrix);
-
-        for (int i = 0; i < matrixMinusEigenvalues.length; i++) {
-            matrixMinusEigenvalues[i][i] -= 1.99;
-        }
-
-        double[][] inverted = invert(matrixMinusEigenvalues);
-
-        Utils.printMatrix(inverted);
-
-        Utils.printArray(reverseIterationWithShift(inverted));
     }
 
     private static double[][] invert(double matrix[][]) {
