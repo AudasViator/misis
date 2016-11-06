@@ -67,7 +67,7 @@ public class VariantSecond {
         double[][] allVectors = new double[MAX_ITERATION][];
 
         for (int i = 0; i < y.length; i++) {
-            y[i] = 1;
+            y[i] = 0.33333;
         }
 
         double abs = 0;

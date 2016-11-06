@@ -2,6 +2,8 @@ package pro.prieran.misis.chm.first_homework;
 
 import pro.prieran.misis.chm.Utils;
 
+import java.util.Arrays;
+
 
 public class VariantNinth {
     public static void main(String[] args) {
@@ -16,34 +18,127 @@ public class VariantNinth {
         Utils.printArray(eigenvalues);
         System.out.println();
 
+        for (int i = 0; i < eigenvalues.length; i++) {
+            double[][] copyMatrix = Utils.copy(matrix);
+            for (int j = 0; j < copyMatrix.length; j++) {
+                copyMatrix[j][j] -= eigenvalues[i];
+            }
+            double[][] invertedMatrix = invert(copyMatrix);
 
-//        for (int i = 0; i < eigenvalues.length; i++) {
-//            matrix[i][i] -= eigenvalues[0];
-//        }
-//        Utils.printMatrix(matrix);
-
-//        gauss(matrix);
+            double[] eigenvector = reverseIterationWithShift(invertedMatrix);
+            System.out.print((i + 1) + " eigenvector: ");
+            Utils.printArray(eigenvector);
+            System.out.println();
+        }
     }
 
-    private static void gauss(double[][] matrix) {
+
+    private static void eigenVectors() {
+        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
+        double[][] matrixMinusEigenvalues = Utils.copy(matrix);
+
+        for (int i = 0; i < matrixMinusEigenvalues.length; i++) {
+            matrixMinusEigenvalues[i][i] -= 1.99;
+        }
+
+        double[][] inverted = invert(matrixMinusEigenvalues);
+
+        Utils.printMatrix(inverted);
+
+        Utils.printArray(reverseIterationWithShift(inverted));
+    }
+
+    private static double[][] invert(double matrix[][]) {
         double[][] a = Utils.copy(matrix);
         int n = a.length;
-        double[][] t = new double[n][n];
+        double identity[][] = new double[n][n];
+        for (int i = 0; i < n; ++i) {
+            identity[i][i] = 1;
+        }
+        double[][] temp = new double[n][n];
+        double inverse[][] = new double[n][n];
 
         for (int k = 0; k < n - 1; k++) {
             for (int i = k + 1; i < n; i++) {
-                t[i][k] = a[i][k] / a[k][k];
+                temp[i][k] = a[i][k] / a[k][k];
+                for (int e = 0; e < n; e++) {
+                    identity[i][e] -= temp[i][k] * identity[k][e];
+                }
 
                 for (int j = k + 1; j < n; j++) {
-                    a[i][j] -= t[i][k] * a[k][j];
+                    a[i][j] -= temp[i][k] * a[k][j];
                 }
             }
         }
 
-        System.out.println("t");
-        Utils.printMatrix(t);
-        System.out.println("a");
-        Utils.printMatrix(a);
+        for (int e = 0; e < n; e++) {
+            inverse[n - 1][e] = identity[n - 1][e] / a[n - 1][n - 1];
+            for (int k = n - 2; k >= 0; k--) {
+                inverse[k] = identity[k];
+                for (int j = k + 1; j < n; j++) {
+                    inverse[k][e] -= a[k][j] * inverse[j][e];
+                }
+                inverse[k][e] /= a[k][k];
+            }
+        }
+
+        return inverse;
+    }
+
+    private synchronized static double[] reverseIterationWithShift(double[][] matrix) {
+        final int MAX_ITERATION = 100;
+        final double EPS = 1E-4;
+        double[] y = new double[matrix.length];
+        double[] x = new double[matrix.length];
+        double[] xKMinusOne = new double[matrix.length];
+        double[][] allVectors = new double[MAX_ITERATION][];
+
+        for (int i = 0; i < y.length; i++) {
+            y[i] = 1.0 / 3.0;
+        }
+
+        double abs = 0;
+        for (int i = 0; i < y.length; i++) {
+            abs += y[i] * y[i];
+        }
+        abs = Math.sqrt(abs);
+        for (int i = 0; i < xKMinusOne.length; i++) {
+            xKMinusOne[i] = y[i] / abs;
+        }
+
+        int k = 1;
+        outer:
+        for (; k <= MAX_ITERATION; k++) {
+            y = Utils.multiply(matrix, xKMinusOne);
+
+            if (k == 1) {
+                allVectors[0] = Arrays.copyOf(y, y.length);
+            } else {
+                allVectors[k - 1] = Arrays.copyOf(Utils.multiply(matrix, allVectors[k - 2]), allVectors[k - 2].length);
+            }
+
+            abs = 0;
+            for (int i = 0; i < y.length; i++) {
+                abs += y[i] * y[i];
+            }
+            abs = Math.sqrt(abs);
+
+            for (int i = 0; i < x.length; i++) {
+                x[i] = y[i] / abs;
+            }
+
+            for (int i = 0; i < xKMinusOne.length; i++) {
+                if (xKMinusOne[i] > EPS) {
+                    if (Math.abs(xKMinusOne[i] - x[i]) < EPS) {
+                        break outer;
+                    }
+                }
+
+            }
+            xKMinusOne = Arrays.copyOf(x, x.length);
+        }
+
+        return x;
     }
 
     private static double[] eigenvaluesLu(double[][] matrix) {
