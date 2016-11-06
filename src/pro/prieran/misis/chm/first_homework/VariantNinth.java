@@ -19,7 +19,7 @@ public class VariantNinth {
         for (int i = 0; i < eigenvalues.length; i++) {
             double[][] copyMatrix = Utils.copy(matrix);
             for (int j = 0; j < copyMatrix.length; j++) {
-                copyMatrix[j][j] -= eigenvalues[i];
+                copyMatrix[j][j] -= (eigenvalues[i] - 0.5);
             }
             double[][] invertedMatrix = invert(copyMatrix);
 
