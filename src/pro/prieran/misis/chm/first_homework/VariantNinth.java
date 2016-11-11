@@ -7,13 +7,13 @@ import java.util.Arrays;
 public class VariantNinth {
     public static void main(String[] args) {
 //        double[][] matrix = {{2, 1}, {6, 1}}; //4, -1
-        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
+        double[][] matrix = {{8, 5, 1, 1}, {3, 7, 0, 4}, {1, 2, 0, 1}, {1, 1, 1, 6}};
 //        double[][] matrix = {{17, 6}, {6, 8}};  // 20, 5
 //        double[][] matrix = {{4, 1, 0}, {1, 2, 1}, {0, 1, 1}}; // 4.46, 2.24, 0.30
 
         System.out.print("Eigenvalues: ");
         double[] eigenvalues = eigenvaluesLu(matrix);
-        Utils.printArray(eigenvalues);
+        Utils.printArray(eigenvalues, 3);
         System.out.println();
 
         for (int i = 0; i < eigenvalues.length; i++) {
@@ -25,7 +25,7 @@ public class VariantNinth {
 
             double[] eigenvector = reverseIterationWithShift(invertedMatrix);
             System.out.printf("Eigenvector for %5.2f = ", eigenvalues[i]);
-            Utils.printArray(eigenvector);
+            Utils.printArray(eigenvector, 3);
             System.out.println();
         }
     }
@@ -127,7 +127,7 @@ public class VariantNinth {
         double[][] upperMatrix = new double[matrix.length][matrix.length];
         double[][] lowerMatrix = new double[matrix.length][matrix.length];
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 200; i++) {
             lu(matrix, lowerMatrix, upperMatrix);
             matrix = Utils.multiply(upperMatrix, lowerMatrix);
         }

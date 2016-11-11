@@ -3,11 +3,10 @@ package pro.prieran.misis.chm.first_homework;
 import pro.prieran.misis.chm.Utils;
 
 public class VariantFirst {
-    private static final double EPS = 1E-9;
 
     public static void main(String[] args) {
-        double[][] coefficients = {{10, -2, -2}, {-1, 10, -2}, {-1, -1, 10}};
-        double[] constants = {12, 14, 16};
+        double[][] coefficients = {{8, 5, 1, 1}, {3, 7, 0, 4}, {1, 2, 0, 1}, {1, 1, 1, 6}};
+        double[] constants = {1, -5, 1, 0};
         double[] approximation = new double[coefficients.length];
 
         for (int i = 0; i < 40; i++) {

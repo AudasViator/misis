@@ -1,7 +1,7 @@
-package pro.prieran.misis.mm;
+package pro.prieran.misis.mm.one_dimension;
 
-import pro.prieran.misis.mm.methods.Euler;
-import pro.prieran.misis.mm.methods.RungeKutta;
+import pro.prieran.misis.mm.one_dimension.methods.Euler;
+import pro.prieran.misis.mm.one_dimension.methods.RungeKutta;
 
 import java.util.List;
 

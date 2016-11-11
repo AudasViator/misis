@@ -10,7 +10,8 @@ public class VariantSecond {
 //        double[][] matrix = {{5, 6, 3}, {-1, 0, 1}, {1, 2, -1}};  // 4, 2, -2
 //        double[][] matrix = {{4, 1, 0}, {1, 2, 1}, {0, 1, 1}}; // 4.46, 2.24, 0.30
 //        double[][] matrix = {{0, 2}, {3, 5}};  // 6, -1
-        double[][] matrix = {{17, 6}, {6, 8}};  // 20, 5
+//        double[][] matrix = {{17, 6}, {6, 8}};  // 20, 5
+        double[][] matrix = {{8, 5, 1, 1}, {3, 7, 0, 4}, {1, 2, 0, 1}, {1, 1, 1, 6}};
 //        double[][] matrix = {{2, 3, 2, 2}, {-1, -1, 0, -1}, {-2, -2, -2, -1}, {3, 2, 2, 2}}; // Обратная
 
         System.out.println("Inverted matrix:");
@@ -59,7 +60,7 @@ public class VariantSecond {
 
     private synchronized static double iteration(double[][] matrix) {
         final int MAX_ITERATION = 100;
-        final double EPS = 1E-4;
+        final double EPS = 1E-6;
         double lambda = Double.NaN;
         double[] y = new double[matrix.length];
         double[] x = new double[matrix.length];
@@ -109,16 +110,15 @@ public class VariantSecond {
                         break outer;
                     }
                 }
-
             }
             xKMinusOne = Arrays.copyOf(x, x.length);
         }
 
         System.out.print("First eigenvector = ");
-        Utils.printArray(x);
+        Utils.printArray(x, 3);
         System.out.println();
 
-        for (int j = 1; j < k - 1; j++) {
+        for (int j = 1; j < k - 1 && j < MAX_ITERATION - 1; j++) {
             double[] lambdasTwo = new double[matrix.length];
             for (int i = 0; i < lambdasTwo.length; i++) {
                 double up = allVectors[j + 1][i] - lambda * allVectors[j][i];
@@ -132,7 +132,7 @@ public class VariantSecond {
                 lambdaTwo += lambdasTwo[i];
             }
             lambdaTwo /= lambdasTwo.length;
-            System.out.printf("%4f", lambdaTwo);
+            System.out.printf("%.3f", lambdaTwo);
 
             double[] secondEigenvector = new double[matrix.length];
             for (int i = 0; i < secondEigenvector.length; i++) {
@@ -149,7 +149,7 @@ public class VariantSecond {
             }
 
             System.out.print(";  Second eigenvector = ");
-            Utils.printArray(secondEigenvector, 4);
+            Utils.printArray(secondEigenvector, 3);
             System.out.println();
         }
 

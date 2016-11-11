@@ -1,4 +1,4 @@
-package pro.prieran.misis.mm;
+package pro.prieran.misis.mm.one_dimension;
 
 public class Point {
     public double x;

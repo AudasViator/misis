@@ -1,8 +1,8 @@
-package pro.prieran.misis.mm;
+package pro.prieran.misis.mm.one_dimension;
 
 import com.sun.istack.internal.NotNull;
-import pro.prieran.misis.mm.interfaces.Function;
-import pro.prieran.misis.mm.interfaces.Iterator;
+import pro.prieran.misis.mm.one_dimension.interfaces.Function;
+import pro.prieran.misis.mm.one_dimension.interfaces.Iterator;
 
 import java.util.ArrayList;
 import java.util.List;
