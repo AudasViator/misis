@@ -1,6 +1,7 @@
 package pro.prieran.misis.mm.one_dimension;
 
 import com.sun.istack.internal.NotNull;
+import pro.prieran.misis.mm.Point;
 import pro.prieran.misis.mm.one_dimension.interfaces.Function;
 import pro.prieran.misis.mm.one_dimension.interfaces.Iterator;
 
