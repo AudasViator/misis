@@ -20,24 +20,25 @@ import pro.prieran.misis.mm.two_dimension.interfaces.Values;
 import java.util.List;
 
 public class Chitalochka extends Application {
-    private static final int COUNT_OF_T_STEPS = 100;
-    private static final double T_FROM = 0;
-    private static final double T_TO = 10;
+    private static final int SLIDER_DECREASE = 10;
 
-    private static final int COUNT_OF_X_STEPS = 100;
-    private static final double X_FROM = 0;
-    private static final double X_TO = 10;
+    private static final Func1 T_ALPHA = t -> t * t;
+    private static final Func1 T_BETA = x -> x * x;
+    private static final Func2 C = (x, t) -> x / t;
+    private static final Func2 F = (x, t) -> Math.cos(0.1 * x) * t + 1;
 
-    private static final Func1 ALPHA = t -> -t * t;
-    private static final Func1 BETA = x -> x * x;
-    private static final Func2 C = (x, t) -> 1;
-    private static final Func2 F = (x, t) -> (-2 * t + 2 * x);
+    private static final int COUNT_OF_T_STEPS = 1400;
+    private static final double T_FROM = T_ALPHA.get(0);
+    private static final double T_TO = 700;
+
+    private static final int COUNT_OF_X_STEPS = 1000;
+    private static final double X_FROM = T_BETA.get(0);
+    private static final double X_TO = 100;
 
     private static final Func1 X_STEPS = x -> Math.abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
     private static final Func1 T_STEPS = t -> Math.abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
 
     private Values values;
-
 
     public static void main(String[] args) {
         launch(args);
@@ -45,11 +46,7 @@ public class Chitalochka extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
-
-        Solver solver = new Solver();
-        values = solver.solve(ALPHA, BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM);
-
+        solveIt();
 
         primaryStage.setTitle("График");
 
@@ -80,10 +77,15 @@ public class Chitalochka extends Application {
         primaryStage.show();
     }
 
+    private void solveIt() {
+        Solver solver = new Solver();
+        values = solver.solve(T_ALPHA, T_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM);
+    }
+
     private Slider makeSlider(int initValue) {
         Slider slider = new Slider();
         slider.setMin(0);
-        slider.setMax(COUNT_OF_T_STEPS - 1);
+        slider.setMax((COUNT_OF_T_STEPS - 1) / SLIDER_DECREASE);
         slider.setValue(initValue);
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
@@ -108,8 +110,9 @@ public class Chitalochka extends Application {
     private void initGraph(XYChart.Series<Number, Number> series, int t) {
         ObservableList data = series.getData();
         data.clear();
-        List<Point> pointsList = values.getValuesForT(t);
-        for (Point point : pointsList) {
+        List<Point> pointsList = values.getValuesForT(t * SLIDER_DECREASE);
+        for (int i = 10; i < pointsList.size(); i++) {
+            Point point = pointsList.get(i);
             if (point != null) {
                 data.add(new XYChart.Data<>(point.x, point.y));
             }
