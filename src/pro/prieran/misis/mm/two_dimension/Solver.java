@@ -1,6 +1,6 @@
 package pro.prieran.misis.mm.two_dimension;
 
-import pro.prieran.misis.mm.Point;
+import pro.prieran.misis.Point;
 import pro.prieran.misis.mm.two_dimension.interfaces.Func1;
 import pro.prieran.misis.mm.two_dimension.interfaces.Func2;
 import pro.prieran.misis.mm.two_dimension.interfaces.Values;

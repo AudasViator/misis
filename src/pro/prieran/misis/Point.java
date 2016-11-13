@@ -1,6 +1,8 @@
-package pro.prieran.misis.mm;
+package pro.prieran.misis;
 
-public class Point {
+import org.jetbrains.annotations.NotNull;
+
+public class Point implements Comparable<Point> {
     public double x;
     public double y;
 
@@ -37,5 +39,10 @@ public class Point {
         temp = Double.doubleToLongBits(y);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
+    }
+
+    @Override
+    public int compareTo(@NotNull Point o) {
+        return (int) (x - o.x);
     }
 }

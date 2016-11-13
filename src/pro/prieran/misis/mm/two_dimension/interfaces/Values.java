@@ -1,6 +1,6 @@
 package pro.prieran.misis.mm.two_dimension.interfaces;
 
-import pro.prieran.misis.mm.Point;
+import pro.prieran.misis.Point;
 
 import java.util.List;
 

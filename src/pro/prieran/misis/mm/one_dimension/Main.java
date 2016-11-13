@@ -1,6 +1,6 @@
 package pro.prieran.misis.mm.one_dimension;
 
-import pro.prieran.misis.mm.Point;
+import pro.prieran.misis.Point;
 import pro.prieran.misis.mm.one_dimension.methods.Euler;
 import pro.prieran.misis.mm.one_dimension.methods.RungeKutta;
 

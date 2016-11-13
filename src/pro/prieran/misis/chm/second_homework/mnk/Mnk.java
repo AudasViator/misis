@@ -1,4 +1,4 @@
-package pro.prieran.misis.mm.two_dimension;
+package pro.prieran.misis.chm.second_homework.mnk;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -13,37 +13,13 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import pro.prieran.misis.Point;
-import pro.prieran.misis.mm.two_dimension.interfaces.Func1;
-import pro.prieran.misis.mm.two_dimension.interfaces.Func2;
-import pro.prieran.misis.mm.two_dimension.interfaces.Values;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Math.*;
+public class Mnk extends Application {
 
-public class Chitalochka extends Application {
-    private static final int SLIDER_DECREASE = 10;
-
-    private static final Func2 ORIG = (x, t) -> x * exp(-t);
-
-    private static final Func2 C = (x, t) -> -x;
-    private static final Func2 F = (x, t) -> -2 * x * exp(-t);
-    private static final Func1 T_ALPHA = t -> 0;
-    private static final Func1 X_BETA = x -> x;
-
-    private static final int COUNT_OF_T_STEPS = 1000;
-    private static final double T_FROM = 0;
-    private static final double T_TO = 10;
-
-    private static final int COUNT_OF_X_STEPS = 1000;
-    private static final double X_FROM = -10;
-    private static final double X_TO = 0;
-
-    private static final Func1 X_STEPS = x -> abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
-    private static final Func1 T_STEPS = t -> abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
-
-    private Values values;
-    private double[] tValues;
+    private List<Point> pointsList;
 
     public static void main(String[] args) {
         launch(args);
@@ -51,7 +27,21 @@ public class Chitalochka extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        solveIt();
+        pointsList = new ArrayList<>();
+
+        pointsList.add(new Point(1, 1));
+        pointsList.add(new Point(2, -2));
+        pointsList.add(new Point(3, 3));
+        pointsList.add(new Point(4, 11));
+        pointsList.add(new Point(5, 5));
+        pointsList.add(new Point(6, 7));
+        pointsList.add(new Point(7, 4));
+        pointsList.add(new Point(8, 12));
+        pointsList.add(new Point(9, 5));
+        pointsList.add(new Point(10, 1));
+
+
+        pointsList.sort(null);
 
         primaryStage.setTitle("График");
 
@@ -66,11 +56,15 @@ public class Chitalochka extends Application {
 
         final int initValue = 0;
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        initGraph(series, initValue);
+        initGraph(series);
         lineChart.getData().add(series);
 
+        XYChart.Series<Number, Number> seriesApr = new XYChart.Series<>();
+        initAprGraph(seriesApr, initValue);
+        lineChart.getData().add(seriesApr);
+
         Slider slider = makeSlider(initValue);
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> initGraph(series, newValue.intValue()));
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> initAprGraph(seriesApr, newValue.intValue()));
 
         GridPane gridPane = makeGridPane();
         gridPane.add(lineChart, 0, 0);
@@ -82,26 +76,17 @@ public class Chitalochka extends Application {
         primaryStage.show();
     }
 
-    private void solveIt() {
-        Solver solver = new Solver();
-        values = solver.solve(T_ALPHA, X_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM);
-
-        tValues = new double[COUNT_OF_T_STEPS + 1];
-        tValues[0] = T_FROM;
-        for (int i = 0; i < COUNT_OF_T_STEPS; i++) {
-            tValues[i + 1] += tValues[i] + T_STEPS.get(i);
-        }
-    }
-
     private Slider makeSlider(int initValue) {
         Slider slider = new Slider();
         slider.setMin(0);
-        slider.setMax((COUNT_OF_T_STEPS - 1) / SLIDER_DECREASE);
+        slider.setMax(pointsList.size());
         slider.setValue(initValue);
         slider.setShowTickMarks(true);
-        slider.setShowTickLabels(false);
+        slider.setShowTickLabels(true);
         slider.setMajorTickUnit(1f);
         slider.setBlockIncrement(1f);
+        slider.setSnapToTicks(true);
+        slider.setMinorTickCount(0);
         return slider;
     }
 
@@ -118,16 +103,32 @@ public class Chitalochka extends Application {
         return gridPane;
     }
 
-    private void initGraph(XYChart.Series<Number, Number> series, int t) {
+    private void initGraph(XYChart.Series<Number, Number> series) {
         ObservableList data = series.getData();
         data.clear();
-        List<Point> pointsList = values.getValuesForT(t * SLIDER_DECREASE);
         for (int i = 0; i < pointsList.size(); i++) {
             Point point = pointsList.get(i);
             if (point != null) {
-//                data.add(new XYChart.Data<>(point.x, point.y));
-                data.add(new XYChart.Data<>(point.x, exp(cos(tValues[t])) * point.x));
+                data.add(new XYChart.Data<>(point.x, point.y));
             }
+        }
+    }
+
+    private void initAprGraph(XYChart.Series<Number, Number> series, int maxPow) {
+        Polynome polynome = new Polynome();
+        Double[] coefs = polynome.gramMatrix(pointsList, maxPow + 1);
+        ObservableList data = series.getData();
+        data.clear();
+
+        double first = pointsList.get(0).x;
+        double last = pointsList.get(pointsList.size() - 1).x;
+
+        for (; first < last; first += 0.1) {
+            double value = 0;
+            for (int j = 0; j < coefs.length; j++) {
+                value += coefs[j] * Math.pow(first, j);
+            }
+            data.add(new XYChart.Data<>(first, value));
         }
     }
 }
