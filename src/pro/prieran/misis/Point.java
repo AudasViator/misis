@@ -1,14 +1,23 @@
 package pro.prieran.misis;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import org.jetbrains.annotations.NotNull;
 
 public class Point implements Comparable<Point> {
+    private final SimpleDoubleProperty xProperty;
+    private final SimpleDoubleProperty yProperty;
+    private final SimpleDoubleProperty yAprProperty;
+    private final SimpleDoubleProperty deltaProperty;
     public double x;
     public double y;
 
     public Point(double x, double y) {
         this.x = x;
         this.y = y;
+        xProperty = new SimpleDoubleProperty(x);
+        yProperty = new SimpleDoubleProperty(y);
+        yAprProperty = new SimpleDoubleProperty();
+        deltaProperty = new SimpleDoubleProperty();
     }
 
     @Override
@@ -44,5 +53,37 @@ public class Point implements Comparable<Point> {
     @Override
     public int compareTo(@NotNull Point o) {
         return (int) (x - o.x);
+    }
+
+    public double getxProperty() {
+        return xProperty.get();
+    }
+
+    public SimpleDoubleProperty xProperty() {
+        return xProperty;
+    }
+
+    public double getyProperty() {
+        return yProperty.get();
+    }
+
+    public SimpleDoubleProperty yProperty() {
+        return yProperty;
+    }
+
+    public double getyAprProperty() {
+        return yAprProperty.get();
+    }
+
+    public SimpleDoubleProperty yAprProperty() {
+        return yAprProperty;
+    }
+
+    public double getDeltaProperty() {
+        return deltaProperty.get();
+    }
+
+    public SimpleDoubleProperty deltaProperty() {
+        return deltaProperty;
     }
 }
