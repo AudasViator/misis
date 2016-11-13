@@ -19,26 +19,31 @@ import pro.prieran.misis.mm.two_dimension.interfaces.Values;
 
 import java.util.List;
 
+import static java.lang.Math.*;
+
 public class Chitalochka extends Application {
     private static final int SLIDER_DECREASE = 10;
 
-    private static final Func1 T_ALPHA = t -> t * t;
-    private static final Func1 T_BETA = x -> x * x;
-    private static final Func2 C = (x, t) -> x / t;
-    private static final Func2 F = (x, t) -> Math.cos(0.1 * x) * t + 1;
+    private static final Func2 ORIG = (x, t) -> x * exp(-t);
 
-    private static final int COUNT_OF_T_STEPS = 1400;
-    private static final double T_FROM = T_ALPHA.get(0);
-    private static final double T_TO = 700;
+    private static final Func2 C = (x, t) -> -x;
+    private static final Func2 F = (x, t) -> -2 * x * exp(-t);
+    private static final Func1 T_ALPHA = t -> 0;
+    private static final Func1 X_BETA = x -> x;
+
+    private static final int COUNT_OF_T_STEPS = 1000;
+    private static final double T_FROM = 0;
+    private static final double T_TO = 10;
 
     private static final int COUNT_OF_X_STEPS = 1000;
-    private static final double X_FROM = T_BETA.get(0);
-    private static final double X_TO = 100;
+    private static final double X_FROM = -10;
+    private static final double X_TO = 0;
 
-    private static final Func1 X_STEPS = x -> Math.abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
-    private static final Func1 T_STEPS = t -> Math.abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
+    private static final Func1 X_STEPS = x -> abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
+    private static final Func1 T_STEPS = t -> abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
 
     private Values values;
+    private double[] tValues;
 
     public static void main(String[] args) {
         launch(args);
@@ -79,7 +84,13 @@ public class Chitalochka extends Application {
 
     private void solveIt() {
         Solver solver = new Solver();
-        values = solver.solve(T_ALPHA, T_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM);
+        values = solver.solve(T_ALPHA, X_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM);
+
+        tValues = new double[COUNT_OF_T_STEPS + 1];
+        tValues[0] = T_FROM;
+        for (int i = 0; i < COUNT_OF_T_STEPS; i++) {
+            tValues[i + 1] += tValues[i] + T_STEPS.get(i);
+        }
     }
 
     private Slider makeSlider(int initValue) {
@@ -88,7 +99,7 @@ public class Chitalochka extends Application {
         slider.setMax((COUNT_OF_T_STEPS - 1) / SLIDER_DECREASE);
         slider.setValue(initValue);
         slider.setShowTickMarks(true);
-        slider.setShowTickLabels(true);
+        slider.setShowTickLabels(false);
         slider.setMajorTickUnit(1f);
         slider.setBlockIncrement(1f);
         return slider;
@@ -111,10 +122,11 @@ public class Chitalochka extends Application {
         ObservableList data = series.getData();
         data.clear();
         List<Point> pointsList = values.getValuesForT(t * SLIDER_DECREASE);
-        for (int i = 10; i < pointsList.size(); i++) {
+        for (int i = 0; i < pointsList.size(); i++) {
             Point point = pointsList.get(i);
             if (point != null) {
-                data.add(new XYChart.Data<>(point.x, point.y));
+//                data.add(new XYChart.Data<>(point.x, point.y));
+                data.add(new XYChart.Data<>(point.x, exp(cos(tValues[t])) * point.x));
             }
         }
     }
