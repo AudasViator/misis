@@ -19,17 +19,21 @@ import pro.prieran.misis.Point;
 
 import java.text.DecimalFormat;
 import java.text.Format;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Mnk extends Application {
-    private static final Func FUNC = x -> Math.sin(x) + Math.cos(x / 10);
+    private static final int COUNT_OF_VISIBLE_POINTS = 200;
+
+    private static final Func FUNC = x -> Math.sin(x) * Math.exp(Math.cos(x * x / 10));
     private static final double FROM = 0.0;
     private static final double TO = 20.0;
-    private static final int MAX_POWER = 10;
 
+    private static final int MAX_POWER = 20;
     private ObservableList<Point> points;
-    private List<Double[]> coefses = new ArrayList<>(20);
+    private Map<Integer, Double[]> coefses = new ConcurrentHashMap<>(MAX_POWER);
 
     public static void main(String[] args) {
         launch(args);
@@ -37,17 +41,21 @@ public class Mnk extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
         Polynome polynome = new Polynome();
+
+        ExecutorService service = Executors.newFixedThreadPool(4);
         for (int i = 0; i < MAX_POWER; i++) {
-            coefses.add(polynome.gramMatrix(i + 1, FUNC, FROM, TO));
+            final int m = i + 1;
+            service.submit(() -> {
+                coefses.put(m - 1, polynome.gramMatrix(m, FUNC, FROM, TO));
+                System.out.println(m + " is done");
+            });
         }
 
         points = FXCollections.observableArrayList();
 
         double currentX = FROM;
-        final int countOfVisiblePoints = 100;
-        for (int i = 0; i < countOfVisiblePoints; i++, currentX += (TO - FROM) / countOfVisiblePoints) {
+        for (int i = 0; i < COUNT_OF_VISIBLE_POINTS; i++, currentX += (TO - FROM) / COUNT_OF_VISIBLE_POINTS) {
             points.add(new Point(currentX, FUNC.func(currentX)));
         }
 
@@ -161,30 +169,32 @@ public class Mnk extends Application {
 
     private void initAprGraph(XYChart.Series<Number, Number> series, int maxPow) {
         Double[] coefs = coefses.get(maxPow);
-        ObservableList data = series.getData();
-        data.clear();
+        if (coefs != null) {
+            ObservableList data = series.getData();
+            data.clear();
 
-        for (int i = 0; i < points.size(); i++) {
-            Point point = points.get(i);
-            if (point != null) {
+            for (int i = 0; i < points.size(); i++) {
+                Point point = points.get(i);
+                if (point != null) {
+                    double value = 0;
+                    for (int j = 0; j < coefs.length; j++) {
+                        value += coefs[j] * Math.pow(point.x, j);
+                    }
+                    point.yAprProperty().set(value);
+                    point.deltaProperty().set(value - point.y);
+                }
+            }
+
+            double first = points.get(0).x;
+            double last = points.get(points.size() - 1).x;
+
+            for (; first < last; first += 0.1) {
                 double value = 0;
                 for (int j = 0; j < coefs.length; j++) {
-                    value += coefs[j] * Math.pow(point.x, j);
+                    value += coefs[j] * Math.pow(first, j);
                 }
-                point.yAprProperty().set(value);
-                point.deltaProperty().set(value - point.y);
+                data.add(new XYChart.Data<>(first, value));
             }
-        }
-
-        double first = points.get(0).x;
-        double last = points.get(points.size() - 1).x;
-
-        for (; first < last; first += 0.1) {
-            double value = 0;
-            for (int j = 0; j < coefs.length; j++) {
-                value += coefs[j] * Math.pow(first, j);
-            }
-            data.add(new XYChart.Data<>(first, value));
         }
     }
 
