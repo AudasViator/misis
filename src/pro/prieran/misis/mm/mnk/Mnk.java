@@ -1,4 +1,4 @@
-package pro.prieran.misis.chm.second_homework.mnk;
+package pro.prieran.misis.mm.mnk;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -19,22 +19,17 @@ import pro.prieran.misis.Point;
 
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Mnk extends Application {
+    private static final Func FUNC = x -> Math.sin(x) + Math.cos(x / 10);
+    private static final double FROM = 0.0;
+    private static final double TO = 20.0;
+    private static final int MAX_POWER = 10;
 
-    private ObservableList<Point> points =
-            FXCollections.observableArrayList(
-                    new Point(1, 1),
-                    new Point(2, 4),
-                    new Point(3, 9),
-                    new Point(4, 1),
-                    new Point(5, 25),
-                    new Point(6, 12),
-                    new Point(7, 49),
-                    new Point(8, 64),
-                    new Point(9, 81),
-                    new Point(10, 10)
-            );
+    private ObservableList<Point> points;
+    private List<Double[]> coefses = new ArrayList<>(20);
 
     public static void main(String[] args) {
         launch(args);
@@ -42,7 +37,19 @@ public class Mnk extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        points.sort(null);
+
+        Polynome polynome = new Polynome();
+        for (int i = 0; i < MAX_POWER; i++) {
+            coefses.add(polynome.gramMatrix(i + 1, FUNC, FROM, TO));
+        }
+
+        points = FXCollections.observableArrayList();
+
+        double currentX = FROM;
+        final int countOfVisiblePoints = 100;
+        for (int i = 0; i < countOfVisiblePoints; i++, currentX += (TO - FROM) / countOfVisiblePoints) {
+            points.add(new Point(currentX, FUNC.func(currentX)));
+        }
 
         primaryStage.setTitle("График");
 
@@ -116,7 +123,7 @@ public class Mnk extends Application {
     private Slider makeSlider(int initValue) {
         Slider slider = new Slider();
         slider.setMin(0);
-        slider.setMax(points.size());
+        slider.setMax(MAX_POWER);
         slider.setValue(initValue);
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
@@ -153,8 +160,7 @@ public class Mnk extends Application {
     }
 
     private void initAprGraph(XYChart.Series<Number, Number> series, int maxPow) {
-        pro.prieran.misis.mm.mnk.Polynome polynome = new pro.prieran.misis.mm.mnk.Polynome();
-        Double[] coefs = polynome.gramMatrix(points, maxPow + 1);
+        Double[] coefs = coefses.get(maxPow);
         ObservableList data = series.getData();
         data.clear();
 
