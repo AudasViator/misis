@@ -53,10 +53,6 @@ public class VariantFirst {
         gradZ = -2 (10 + y^3 - 2 z)
      */
 
-    private static double[] function(double[] args) {
-        return null;
-    }
-
     private static double[] grad(double[] args) {
         double x = args[0];
         double y = args[1];
