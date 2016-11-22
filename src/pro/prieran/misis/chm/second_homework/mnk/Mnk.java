@@ -153,8 +153,9 @@ public class Mnk extends Application {
     }
 
     private void initAprGraph(XYChart.Series<Number, Number> series, int maxPow) {
-        pro.prieran.misis.mm.mnk.Polynome polynome = new pro.prieran.misis.mm.mnk.Polynome();
-        Double[] coefs = polynome.gramMatrix(points, maxPow + 1);
+        Polynome polynome = new Polynome();
+//        Double[] coefs = polynome.gramMatrix(points, maxPow + 1);
+        Double[] coefs = polynome.gramMatrix(points, 0, 10);
         ObservableList data = series.getData();
         data.clear();
 
