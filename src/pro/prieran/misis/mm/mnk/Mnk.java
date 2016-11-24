@@ -41,13 +41,13 @@ public class Mnk extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Polynome polynome = new Polynome();
+        Approximator approximator = new Approximator();
 
         ExecutorService service = Executors.newFixedThreadPool(4);
         for (int i = 0; i < MAX_POWER; i++) {
             final int m = i + 1;
             service.submit(() -> {
-                coefses.put(m - 1, polynome.gramMatrix(m, FUNC, FROM, TO));
+                coefses.put(m - 1, approximator.gramMatrix(m, FUNC, FROM, TO));
                 System.out.println(m + " is done");
             });
         }

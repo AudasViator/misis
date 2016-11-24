@@ -4,7 +4,7 @@ import pro.prieran.misis.Point
 import java.lang.Math.abs
 import java.lang.Math.pow
 
-class Polynome {
+class Approximator {
     fun gramMatrix(points: List<Point>, m: Int): Array<Double> {
         val a = Array(m, { i -> Array<Double>(m + 1, { j -> 0.0 }) })
         for (i in 0..a.size - 1) {

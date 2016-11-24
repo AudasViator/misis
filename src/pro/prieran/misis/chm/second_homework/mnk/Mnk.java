@@ -29,11 +29,11 @@ public class Mnk extends Application {
                     new Point(3, 9),
                     new Point(4, 1),
                     new Point(5, 25),
-                    new Point(6, 12)
-//                    new Point(7, 49),
-//                    new Point(8, 64),
-//                    new Point(9, 81),
-//                    new Point(10, 10)
+                    new Point(6, 12),
+                    new Point(7, 49),
+                    new Point(8, 64),
+                    new Point(9, 81),
+                    new Point(10, 10)
             );
 
     public static void main(String[] args) {
@@ -153,15 +153,14 @@ public class Mnk extends Application {
     }
 
     private void initAprGraph(XYChart.Series<Number, Number> series, int maxPow) {
-        Polynome polynome = new Polynome();
-        Double[] coefs = polynome.gramMatrix(points);
+        Approximator approximator = new Approximator(points, maxPow);
         ObservableList data = series.getData();
         data.clear();
 
         for (int i = 0; i < points.size(); i++) {
             Point point = points.get(i);
             if (point != null) {
-                double value = polynome.function(0, 5, coefs, point.x);
+                double value = approximator.getValue(point.x);
                 point.yAprProperty().set(value);
                 point.deltaProperty().set(value - point.y);
             }
@@ -171,7 +170,7 @@ public class Mnk extends Application {
         double last = points.get(points.size() - 1).x;
 
         for (; first < last; first += 0.1) {
-            double value = polynome.function(0, 5, coefs, first);
+            double value = approximator.getValue(first);
             data.add(new XYChart.Data<>(first, value));
         }
     }
