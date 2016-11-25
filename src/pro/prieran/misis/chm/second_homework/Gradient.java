@@ -2,30 +2,53 @@ package pro.prieran.misis.chm.second_homework;
 
 import pro.prieran.misis.chm.Utils;
 
+import java.util.Arrays;
+
 import static java.lang.Math.pow;
 
-public class VariantFirst {
-    private static final double EPS = 1E-8;
+public class Gradient {
+    private static final int COUNT_OF_DIGIT = 5;
+    private static final double EPS = pow(10, -(COUNT_OF_DIGIT + 1));
 
     public static void main(String[] args) {
-        double[] startValues = {1, 1, 1};
-        double[] newValues;
-        double parameter = 0.001;
-        for (int k = 0; k < 100000; k++) {
-            newValues = iteration(startValues, parameter);
+        double[] startValues = {2, 1, 2};
+        double[] newValues = new double[startValues.length];
+        double lambda = 1;
+
+        for (int k = 0; k < 100_000; k++) {
+            double[] grad = grad(startValues);
+
+            for (int i = 0; i < startValues.length; i++) {
+                newValues[i] = startValues[i] - lambda * grad[i];
+            }
+
+            double norma = 0.0;
+            for (int i = 0; i < startValues.length; i++) {
+                norma += grad[i] * grad[i];
+            }
+
+            while (func(newValues) > func(startValues) - 0.1 * lambda * norma) {
+                lambda *= 0.8;
+
+                for (int i = 0; i < newValues.length; i++) {
+                    newValues[i] = startValues[i] - lambda * grad[i];
+                }
+            }
 
             boolean isShouldStop = true;
             for (int i = 0; i < newValues.length; i++) {
                 isShouldStop &= Math.abs(newValues[i] - startValues[i]) < EPS;
             }
+
             if (isShouldStop) {
                 break;
             }
 
-            startValues = newValues;
-            if (k % 1000 == 0) {
+            startValues = Arrays.copyOf(newValues, startValues.length);
+
+            if (k % 100 == 0) {
                 System.out.print(k + ". ");
-                Utils.printArray(startValues, 5);
+                Utils.printArray(startValues, COUNT_OF_DIGIT);
                 System.out.println();
             }
         }
@@ -53,6 +76,13 @@ public class VariantFirst {
         gradZ = -2 (10 + y^3 - 2 z)
      */
 
+    private static double func(double[] args) {
+        double x = args[0];
+        double y = args[1];
+        double z = args[2];
+        return pow((pow(x, 2) + pow(y, 3) - 10), 2) + pow((pow(x, 3) - z + pow(y, 3)), 2) + pow((pow(x, 3) + z - 10), 2);
+    }
+
     private static double[] grad(double[] args) {
         double x = args[0];
         double y = args[1];
@@ -62,15 +92,5 @@ public class VariantFirst {
                 6 * pow(y, 2) * (-10 + pow(x, 2) + pow(x, 3) + 2 * pow(y, 3) - z),
                 -2 * (10 + pow(y, 3) - 2 * z)
         };
-    }
-
-    private static double[] iteration(double[] old, double parameter) {
-        double[] next = new double[old.length];
-        double[] grad = grad(old);
-        for (int i = 0; i < next.length; i++) {
-            next[i] = old[i] - parameter * grad[i];
-        }
-
-        return next;
     }
 }
