@@ -1,13 +1,12 @@
 package pro.prieran.misis.mm.mnk
 
-import java.lang.Math.abs
-import java.lang.Math.pow
+import java.lang.Math.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-class Approximator(func: (Double) -> Double, val from: Double, val to: Double, maxPow: Int) {
-    val functions = Array(maxPow + 1, { i -> powerPolynomial(i) })
+class Approximator(func: (Double) -> Double, val from: Double, val to: Double, maxPow: Int, apprFunc: (Int) -> (Double) -> (Double)) {
+    val functions = Array(maxPow + 1, { i -> apprFunc(i) })
     val gramMatrix = gramMatrix(maxPow + 1, func, from, to)
 
     fun getFunction(pow: Int): (Double) -> Double = functions[pow]
@@ -143,10 +142,15 @@ class Approximator(func: (Double) -> Double, val from: Double, val to: Double, m
         return ans
     }
 
-    private fun powerPolynomial(pow: Int): (Double) -> Double = { x -> pow(x, pow.toDouble()) }
+    fun powerPolynomial(pow: Int): (Double) -> Double = { x -> pow(x, pow.toDouble()) }
+
+    fun strangeSin(pow: Int): (Double) -> Double {
+        val alpha = Math.PI / (to - from)
+        return { x -> sin(alpha * pow * x) }
+    }
 
     //     Многочлены Чебышева первого рода
-    private fun chebyshev(pow: Int): (Double) -> Double {
+    fun chebyshev(pow: Int): (Double) -> Double {
         val zero = { x: Double -> 1.0 }
         val first = { x: Double -> x }
 
@@ -171,7 +175,7 @@ class Approximator(func: (Double) -> Double, val from: Double, val to: Double, m
     }
 
     // Ортогонализация Грама ― Шмидта (или нет?)
-    private fun orthogonal(pow: Int): (Double) -> Double {
+    fun orthogonal(pow: Int): (Double) -> Double {
         val zero = { x: Double -> 1.0 }
         val b1 = scalarProduct(from, to, { x -> x }, zero) /
                 scalarProduct(from, to, zero, zero)

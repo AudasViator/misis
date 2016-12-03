@@ -31,7 +31,8 @@ public class Mnk extends Application {
 
     private static final int MAX_POWER = 20;
     private ObservableList<Point> points;
-    private Approximator approximator;
+    private Approximator approximator1;
+    private Approximator approximator2;
 
     public static void main(String[] args) {
         launch(args);
@@ -39,7 +40,16 @@ public class Mnk extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        approximator = new Approximator(FUNC, FROM, TO, MAX_POWER);
+
+        Function1<Integer, Function1<Double, Double>> sin = integer -> {
+            double alpha = Math.PI / (TO - FROM);
+            return x -> Math.sin(alpha * integer * x);
+        };
+
+        Function1<Integer, Function1<Double, Double>> pol = integer -> x -> Math.pow(x, integer);
+
+        approximator1 = new Approximator(FUNC, FROM, TO, MAX_POWER, sin);
+        approximator2 = new Approximator(FUNC, FROM, TO, MAX_POWER, pol);
 
         points = FXCollections.observableArrayList();
 
@@ -66,12 +76,18 @@ public class Mnk extends Application {
         lineChart.getData().add(series);
 
         XYChart.Series<Number, Number> seriesApr = new XYChart.Series<>();
-        seriesApr.setName("Аппроксимация");
+        seriesApr.setName("АппроксимацияSin");
         initAprGraph(seriesApr, initValue);
         lineChart.getData().add(seriesApr);
 
+        XYChart.Series<Number, Number> seriesSecondApr = new XYChart.Series<>();
+        seriesSecondApr.setName("АппроксимацияPow");
+        initSecondAprGraph(seriesSecondApr, initValue);
+        lineChart.getData().add(seriesSecondApr);
+
         Slider slider = makeSlider(initValue);
         slider.valueProperty().addListener((observable, oldValue, newValue) -> initAprGraph(seriesApr, newValue.intValue()));
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> initSecondAprGraph(seriesSecondApr, newValue.intValue()));
 
         TableView table = makeTableView();
 
@@ -157,10 +173,10 @@ public class Mnk extends Application {
     }
 
     private void initAprGraph(XYChart.Series<Number, Number> series, int pow) {
-        Double[] coefs = approximator.getCoefs(pow);
+        Double[] coefs = approximator1.getCoefs(pow);
         HashMap<Integer, Function1<Double, Double>> funcs = new HashMap<>(pow + 1);
         for (int i = 0; i < pow + 1; i++) {
-            funcs.put(i, approximator.getFunction(i));
+            funcs.put(i, approximator1.getFunction(i));
         }
 
         ObservableList data = series.getData();
@@ -177,17 +193,30 @@ public class Mnk extends Application {
                 point.deltaProperty().set(value - point.y);
                 data.add(new XYChart.Data<>(point.x, value));
             }
+        }
+    }
 
-            double first = points.get(0).x;
-            double last = points.get(points.size() - 1).x;
+    private void initSecondAprGraph(XYChart.Series<Number, Number> series, int pow) {
+        Double[] coefs = approximator2.getCoefs(pow);
+        HashMap<Integer, Function1<Double, Double>> funcs = new HashMap<>(pow + 1);
+        for (int i = 0; i < pow + 1; i++) {
+            funcs.put(i, approximator2.getFunction(i));
+        }
 
-//            for (; first < last; first += 0.1) {
-//                double value = 0;
-//                for (int j = 0; j < coefs.length; j++) {
-//                    value += coefs[j] * funcs.get(j).invoke(first);
-//                }
-//                data.add(new XYChart.Data<>(first, value));
-//            }
+        ObservableList data = series.getData();
+        data.clear();
+
+        for (int i = 0; i < points.size(); i++) {
+            Point point = points.get(i);
+            if (point != null) {
+                double value = 0;
+                for (int j = 0; j < coefs.length; j++) {
+                    value += coefs[j] * funcs.get(j).invoke(point.x);
+                }
+                point.yAprProperty().set(value);
+                point.deltaProperty().set(value - point.y);
+                data.add(new XYChart.Data<>(point.x, value));
+            }
         }
     }
 
