@@ -1,16 +1,16 @@
 package pro.prieran.misis.mm.one_dimension;
 
 import com.sun.istack.internal.NotNull;
+import kotlin.jvm.functions.Function2;
 import pro.prieran.misis.Point;
-import pro.prieran.misis.mm.one_dimension.interfaces.Function;
-import pro.prieran.misis.mm.one_dimension.interfaces.Iterator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiffSolver {
+class DiffSolver {
+
     @NotNull
-    public List<Point> solve(@NotNull Function function, @NotNull Iterator iterator, double y0, double x0, double step, double fromX, double toX) {
+    List<Point> solve(@NotNull Function2<Double, Double, Double> function, @NotNull Iterator iterator, double y0, double x0, double step, double fromX, double toX) {
         if (fromX > toX || x0 > fromX || step <= 0) {
             throw new IllegalArgumentException();
         }
