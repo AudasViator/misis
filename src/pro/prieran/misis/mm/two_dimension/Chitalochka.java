@@ -128,11 +128,9 @@ public class Chitalochka extends Application {
         ObservableList data = series.getData();
         data.clear();
         List<Point> pointsList = values.getValuesForT(t);
-        for (int i = 0; i < pointsList.size(); i++) {
+        for (int i = 0; i < pointsList.size(); i += 20) { // Для наглядности покажем не все точки
             Point point = pointsList.get(i);
-            if (point != null) {
-                data.add(new XYChart.Data<>(point.x, point.y));
-            }
+            data.add(new XYChart.Data<>(point.x, point.y));
         }
     }
 
@@ -140,11 +138,9 @@ public class Chitalochka extends Application {
         ObservableList data = series.getData();
         data.clear();
         List<Point> pointsList = values.getValuesForT(t);
-        for (int i = 0; i < pointsList.size(); i++) {
+        for (int i = 0; i < pointsList.size(); i += 40) { // Для наглядности покажем не все точки
             Point point = pointsList.get(i);
-            if (point != null) {
-                data.add(new XYChart.Data<>(point.x, 1 + ANALYT.invoke(point.x, tValues[t])));
-            }
+            data.add(new XYChart.Data<>(point.x, ANALYT.invoke(point.x, tValues[t])));
         }
     }
 }
