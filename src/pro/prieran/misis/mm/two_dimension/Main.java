@@ -20,7 +20,7 @@ import java.util.List;
 
 import static java.lang.Math.abs;
 
-public class Chitalochka extends Application {
+public class Main extends Application {
 
     /**
      * Слайдер изменяет значение t, но стоит выводит в это число раз меньше точек

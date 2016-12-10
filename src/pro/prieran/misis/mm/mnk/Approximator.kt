@@ -34,6 +34,7 @@ class Approximator(func: (Double) -> Double, val from: Double, val to: Double, m
             }
         }
 
+        // Каждая строка отдельно, многопоточность
         executorService.submit {
             for (i in 0..a.size - 1) {
                 a[i][a[i].size - 1] = scalarProduct(from, to, functions[i], { x -> func(x) })
@@ -119,25 +120,6 @@ class Approximator(func: (Double) -> Double, val from: Double, val to: Double, m
                 ans[i] = a[where[i]][m] / a[where[i]][i]
             }
         }
-
-//        for (i in 0..n - 1) {
-//            var sum = 0.0
-//            for (j in 0..m - 1) {
-//                sum += ans[j] * a[i][j]
-//            }
-//
-//            if (abs(sum - a[i][m]) > EPS) {
-//                println("No, ${m - 1}")
-//                break
-//            }
-//        }
-//
-//        for (i in 0..m - 1) {
-//            if (where[i] == -1) {
-//                println("Inf")
-//                break
-//            }
-//        }
 
         return ans
     }

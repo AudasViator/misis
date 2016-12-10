@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.HashMap;
 
-public class Mnk extends Application {
+public class Main extends Application {
     private static final int COUNT_OF_VISIBLE_POINTS = 200;
 
     private static final Function1<Double, Double> FUNC = x -> Math.sin(x) * Math.exp(Math.cos(x * x / 10));
@@ -30,7 +30,10 @@ public class Mnk extends Application {
     private static final double TO = 20.0;
 
     private static final int MAX_POWER = 20;
-    private ObservableList<Point> points;
+
+    private final ObservableList<Point> points = FXCollections.observableArrayList();
+
+    // Коэффициенты считают эти двое
     private Approximator approximator1;
     private Approximator approximator2;
 
@@ -50,8 +53,6 @@ public class Mnk extends Application {
 
         approximator1 = new Approximator(FUNC, FROM, TO, MAX_POWER, sin);
         approximator2 = new Approximator(FUNC, FROM, TO, MAX_POWER, pol);
-
-        points = FXCollections.observableArrayList();
 
         double currentX = FROM;
         for (int i = 0; i < COUNT_OF_VISIBLE_POINTS; i++, currentX += (TO - FROM) / COUNT_OF_VISIBLE_POINTS) {
