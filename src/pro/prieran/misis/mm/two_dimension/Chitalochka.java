@@ -21,14 +21,23 @@ import java.util.List;
 import static java.lang.Math.abs;
 
 public class Chitalochka extends Application {
+
+    /**
+     * Слайдер изменяет значение t, но стоит выводит в это число раз меньше точек
+     */
     private static final int SLIDER_DECREASE = 10;
 
-    private static final Function2<Double, Double, Double> ANALYT = (x, t) -> x * x - t * t;
+    /**
+     * Аналитическое решение, нашлось руками
+     */
+    private static final Function2<Double, Double, Double> ANALYTIC_SOLUTION = (x, t) -> x * x - t * t;
 
+    // Начальные условия
     private static final Function2<Double, Double, Double> C = (x, t) -> 1.0;
     private static final Function2<Double, Double, Double> F = (x, t) -> -2 * t + 2 * x;
-    private static final Function1<Double, Double> T_ALPHA = t -> ANALYT.invoke(0.0, t);
-    private static final Function1<Double, Double> X_BETA = x -> ANALYT.invoke(x, 0.0);
+
+    private static final Function1<Double, Double> X_INITIAL = x -> ANALYTIC_SOLUTION.invoke(x, 0.0);
+    private static final Function1<Double, Double> T_INITIAL = t -> ANALYTIC_SOLUTION.invoke(0.0, t);
 
     private static final int COUNT_OF_T_STEPS = 1000;
     private static final double T_FROM = 0;
@@ -38,10 +47,24 @@ public class Chitalochka extends Application {
     private static final double X_FROM = 0;
     private static final double X_TO = 10;
 
+    /**
+     * Возвращает шаг по оси X
+     */
     private static final Function1<Integer, Double> X_STEPS = x -> abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
+
+    /**
+     * Возвращает шаг по оси T
+     */
     private static final Function1<Integer, Double> T_STEPS = t -> abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
 
-    private Values values;
+    /**
+     * Посчитанные значения
+     */
+    private Values numericalSolution;
+
+    /**
+     * Значения t для каждого шага
+     */
     private double[] tValues;
 
     public static void main(String[] args) {
@@ -62,19 +85,19 @@ public class Chitalochka extends Application {
         final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setAnimated(false);
 
-        final int initValue = 0;
+        final int initialKValue = 0;
 
         XYChart.Series<Number, Number> solvedSeries = new XYChart.Series<>();
         solvedSeries.setName("Численно");
-        initSolvedGraph(solvedSeries, initValue);
+        initSolvedGraph(solvedSeries, initialKValue);
         lineChart.getData().add(solvedSeries);
 
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Аналитически");
-        initGraph(series, initValue);
+        initGraph(series, initialKValue);
         lineChart.getData().add(series);
 
-        Slider slider = makeSlider(initValue);
+        Slider slider = makeSlider(initialKValue);
         slider.valueProperty().addListener((observable, oldValue, newValue) -> initSolvedGraph(solvedSeries, newValue.intValue() * SLIDER_DECREASE));
         slider.valueProperty().addListener((observable, oldValue, newValue) -> initGraph(series, newValue.intValue() * SLIDER_DECREASE));
 
@@ -82,21 +105,21 @@ public class Chitalochka extends Application {
         gridPane.add(lineChart, 0, 0);
         gridPane.add(slider, 0, 1);
 
-
         Scene scene = new Scene(gridPane, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private void solveIt() {
-        Solver solver = new Solver();
-        values = solver.solve(T_ALPHA, X_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM, T_FROM);
-
+        // Считаем значения t, подставляются в аналитическое решение
         tValues = new double[COUNT_OF_T_STEPS + 1];
         tValues[0] = T_FROM;
         for (int i = 0; i < COUNT_OF_T_STEPS; i++) {
             tValues[i + 1] += tValues[i] + T_STEPS.invoke(i);
         }
+
+        Solver solver = new Solver();
+        numericalSolution = solver.solve(T_INITIAL, X_INITIAL, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM, T_FROM);
     }
 
     private Slider makeSlider(int initValue) {
@@ -127,7 +150,7 @@ public class Chitalochka extends Application {
     private void initSolvedGraph(XYChart.Series<Number, Number> series, int t) {
         ObservableList data = series.getData();
         data.clear();
-        List<Point> pointsList = values.getValuesForT(t);
+        List<Point> pointsList = numericalSolution.getValuesForT(t);
         for (int i = 0; i < pointsList.size(); i += 20) { // Для наглядности покажем не все точки
             Point point = pointsList.get(i);
             data.add(new XYChart.Data<>(point.x, point.y));
@@ -137,10 +160,10 @@ public class Chitalochka extends Application {
     private void initGraph(XYChart.Series<Number, Number> series, int t) {
         ObservableList data = series.getData();
         data.clear();
-        List<Point> pointsList = values.getValuesForT(t);
+        List<Point> pointsList = numericalSolution.getValuesForT(t);
         for (int i = 0; i < pointsList.size(); i += 40) { // Для наглядности покажем не все точки
             Point point = pointsList.get(i);
-            data.add(new XYChart.Data<>(point.x, ANALYT.invoke(point.x, tValues[t])));
+            data.add(new XYChart.Data<>(point.x, ANALYTIC_SOLUTION.invoke(point.x, tValues[t])));
         }
     }
 }

@@ -9,11 +9,19 @@ import java.util.List;
 
 class Solver {
 
+    /**
+     * Значения x для каждого шага
+     */
     private double[] xValues;
+
+    /**
+     * Значения t для каждого шага
+     */
     private double[] tValues;
 
-    Values solve(Function1<Double, Double> alpha, Function1<Double, Double> beta, Function2<Double, Double, Double> f, Function2<Double, Double, Double> c, Function1<Integer, Double> xSteps, Function1<Integer, Double> tSteps, int countOfXSteps, int countOfTSteps, double xFrom, double tFrom) {
+    Values solve(Function1<Double, Double> tInitial, Function1<Double, Double> xInitial, Function2<Double, Double, Double> f, Function2<Double, Double, Double> c, Function1<Integer, Double> xSteps, Function1<Integer, Double> tSteps, int countOfXSteps, int countOfTSteps, double xFrom, double tFrom) {
 
+        // Считаем значения для каждого шага
         xValues = new double[countOfXSteps + 1];
         xValues[0] = xFrom;
         for (int i = 0; i < countOfXSteps; i++) {
@@ -27,16 +35,15 @@ class Solver {
         }
 
         Values values = new Values() {
+            /**
+             * Странная конструкция, но так сложилось исторически
+             */
             private Point[][] values = new Point[countOfTSteps + 1][countOfXSteps + 1];
 
             @Override
             public double get(int xCount, int tCount) {
                 Point point = values[tCount][xCount];
-//                if (point != null) {
                 return point.y;
-//                } else {
-//                    return 0;
-//                }
             }
 
             @Override
@@ -53,13 +60,14 @@ class Solver {
 
         // Копируем начальные условия
         for (int tCount = 0; tCount < countOfTSteps + 1; tCount++) {
-            values.set(0, tCount, alpha.invoke(tValues[tCount]));
+            values.set(0, tCount, tInitial.invoke(tValues[tCount]));
         }
 
         for (int xCount = 0; xCount < countOfXSteps + 1; xCount++) {
-            values.set(xCount, 0, beta.invoke(xValues[xCount]));
+            values.set(xCount, 0, xInitial.invoke(xValues[xCount]));
         }
 
+        // Считаем
         for (int tCount = 1; tCount < countOfTSteps + 1; tCount++) {
             for (int xCount = 1; xCount < countOfXSteps + 1; xCount++) {
                 values.set(xCount, tCount, iterate(xCount, tCount - 1, values, f, c, xSteps, tSteps));
