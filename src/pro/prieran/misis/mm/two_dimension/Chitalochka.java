@@ -12,35 +12,34 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
+import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import pro.prieran.misis.Point;
-import pro.prieran.misis.mm.two_dimension.interfaces.Func1;
-import pro.prieran.misis.mm.two_dimension.interfaces.Func2;
-import pro.prieran.misis.mm.two_dimension.interfaces.Values;
 
 import java.util.List;
 
-import static java.lang.Math.*;
+import static java.lang.Math.abs;
 
 public class Chitalochka extends Application {
     private static final int SLIDER_DECREASE = 10;
 
-    private static final Func2 ORIG = (x, t) -> x * exp(-t);
+    private static final Function2<Double, Double, Double> ANALYT = (x, t) -> x * x - t * t;
 
-    private static final Func2 C = (x, t) -> -x;
-    private static final Func2 F = (x, t) -> -2 * x * exp(-t);
-    private static final Func1 T_ALPHA = t -> 0;
-    private static final Func1 X_BETA = x -> x;
+    private static final Function2<Double, Double, Double> C = (x, t) -> 1.0;
+    private static final Function2<Double, Double, Double> F = (x, t) -> -2 * t + 2 * x;
+    private static final Function1<Double, Double> T_ALPHA = t -> ANALYT.invoke(0.0, t);
+    private static final Function1<Double, Double> X_BETA = x -> ANALYT.invoke(x, 0.0);
 
     private static final int COUNT_OF_T_STEPS = 1000;
     private static final double T_FROM = 0;
     private static final double T_TO = 10;
 
     private static final int COUNT_OF_X_STEPS = 1000;
-    private static final double X_FROM = -10;
-    private static final double X_TO = 0;
+    private static final double X_FROM = 0;
+    private static final double X_TO = 10;
 
-    private static final Func1 X_STEPS = x -> abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
-    private static final Func1 T_STEPS = t -> abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
+    private static final Function1<Integer, Double> X_STEPS = x -> abs(X_TO - X_FROM) / COUNT_OF_X_STEPS;
+    private static final Function1<Integer, Double> T_STEPS = t -> abs(T_TO - T_FROM) / COUNT_OF_T_STEPS;
 
     private Values values;
     private double[] tValues;
@@ -61,16 +60,23 @@ public class Chitalochka extends Application {
         yAxis.setLabel("y");
 
         final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setLegendVisible(false);
         lineChart.setAnimated(false);
 
         final int initValue = 0;
+
+        XYChart.Series<Number, Number> solvedSeries = new XYChart.Series<>();
+        solvedSeries.setName("Численно");
+        initSolvedGraph(solvedSeries, initValue);
+        lineChart.getData().add(solvedSeries);
+
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName("Аналитически");
         initGraph(series, initValue);
         lineChart.getData().add(series);
 
         Slider slider = makeSlider(initValue);
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> initGraph(series, newValue.intValue()));
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> initSolvedGraph(solvedSeries, newValue.intValue() * SLIDER_DECREASE));
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> initGraph(series, newValue.intValue() * SLIDER_DECREASE));
 
         GridPane gridPane = makeGridPane();
         gridPane.add(lineChart, 0, 0);
@@ -84,12 +90,12 @@ public class Chitalochka extends Application {
 
     private void solveIt() {
         Solver solver = new Solver();
-        values = solver.solve(T_ALPHA, X_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM);
+        values = solver.solve(T_ALPHA, X_BETA, F, C, X_STEPS, T_STEPS, COUNT_OF_X_STEPS, COUNT_OF_T_STEPS, X_FROM, T_FROM);
 
         tValues = new double[COUNT_OF_T_STEPS + 1];
         tValues[0] = T_FROM;
         for (int i = 0; i < COUNT_OF_T_STEPS; i++) {
-            tValues[i + 1] += tValues[i] + T_STEPS.get(i);
+            tValues[i + 1] += tValues[i] + T_STEPS.invoke(i);
         }
     }
 
@@ -118,15 +124,26 @@ public class Chitalochka extends Application {
         return gridPane;
     }
 
-    private void initGraph(XYChart.Series<Number, Number> series, int t) {
+    private void initSolvedGraph(XYChart.Series<Number, Number> series, int t) {
         ObservableList data = series.getData();
         data.clear();
-        List<Point> pointsList = values.getValuesForT(t * SLIDER_DECREASE);
+        List<Point> pointsList = values.getValuesForT(t);
         for (int i = 0; i < pointsList.size(); i++) {
             Point point = pointsList.get(i);
             if (point != null) {
-//                data.add(new XYChart.Data<>(point.x, point.y));
-                data.add(new XYChart.Data<>(point.x, exp(cos(tValues[t])) * point.x));
+                data.add(new XYChart.Data<>(point.x, point.y));
+            }
+        }
+    }
+
+    private void initGraph(XYChart.Series<Number, Number> series, int t) {
+        ObservableList data = series.getData();
+        data.clear();
+        List<Point> pointsList = values.getValuesForT(t);
+        for (int i = 0; i < pointsList.size(); i++) {
+            Point point = pointsList.get(i);
+            if (point != null) {
+                data.add(new XYChart.Data<>(point.x, 1 + ANALYT.invoke(point.x, tValues[t])));
             }
         }
     }

@@ -1,89 +1,87 @@
 package pro.prieran.misis.mm.two_dimension;
 
+import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import pro.prieran.misis.Point;
-import pro.prieran.misis.mm.two_dimension.interfaces.Func1;
-import pro.prieran.misis.mm.two_dimension.interfaces.Func2;
-import pro.prieran.misis.mm.two_dimension.interfaces.Values;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class Solver {
-    public Values solve(Func1 alpha, Func1 beta, Func2 f, Func2 c, Func1 xSteps, Func1 tSteps, int countOfXSteps, int countOfTSteps, double xFrom) {
-        // alpha(t), beta(x)
-        // values[x][t]
+class Solver {
 
-        final double[] xValues = new double[countOfXSteps + 1];
+    private double[] xValues;
+    private double[] tValues;
+
+    Values solve(Function1<Double, Double> alpha, Function1<Double, Double> beta, Function2<Double, Double, Double> f, Function2<Double, Double, Double> c, Function1<Integer, Double> xSteps, Function1<Integer, Double> tSteps, int countOfXSteps, int countOfTSteps, double xFrom, double tFrom) {
+
+        xValues = new double[countOfXSteps + 1];
         xValues[0] = xFrom;
         for (int i = 0; i < countOfXSteps; i++) {
-            xValues[i + 1] += xValues[i] + xSteps.get(i);
+            xValues[i + 1] += xValues[i] + xSteps.invoke(i);
+        }
+
+        tValues = new double[countOfTSteps + 1];
+        tValues[0] = tFrom;
+        for (int i = 0; i < countOfXSteps; i++) {
+            tValues[i + 1] += tValues[i] + tSteps.invoke(i);
         }
 
         Values values = new Values() {
             private Point[][] values = new Point[countOfTSteps + 1][countOfXSteps + 1];
 
             @Override
-            public double get(int x, int t) {
-                Point point = values[t][x];
-                if (point != null) {
+            public double get(int xCount, int tCount) {
+                Point point = values[tCount][xCount];
+//                if (point != null) {
                     return point.y;
-                } else {
-                    return 0;
-                }
+//                } else {
+//                    return 0;
+//                }
             }
 
             @Override
-            public List<Point> getValuesForT(int t) {
-                return Arrays.asList(values[t]);
+            public List<Point> getValuesForT(int tCount) {
+                return Arrays.asList(values[tCount]);
             }
 
             @Override
-            public void set(int x, int t, double value) {
-                Point point = new Point(xValues[x], value);
-                values[t][x] = point;
-            }
-
-            @Override
-            public int sizeX() {
-                return countOfXSteps;
-            }
-
-            @Override
-            public int sizeT() {
-                return countOfTSteps;
+            public void set(int xCount, int tCount, double value) {
+                Point point = new Point(xValues[xCount], value);
+                values[tCount][xCount] = point;
             }
         };
 
         // Копируем начальные условия
-        for (int t = 0; t < countOfTSteps; t++) {
-            values.set(0, t, alpha.get(t));
-        }
-        for (int x = 0; x < countOfXSteps; x++) {
-            values.set(x, 0, beta.get(x));
+        for (int tCount = 0; tCount < countOfTSteps; tCount++) {
+            values.set(0, tCount, alpha.invoke(tValues[tCount]));
         }
 
-        for (int t = 0; t < countOfTSteps; t++) {
-            for (int x = 1; x < countOfXSteps; x++) {
-                values.set(x, t, iterate(x, t, values, f, c, xSteps, tSteps));
+        for (int xCount = 0; xCount < countOfXSteps; xCount++) {
+            values.set(xCount, 0, beta.invoke(xValues[xCount]));
+        }
+
+        for (int tCount = 0; tCount < countOfTSteps; tCount++) {
+            for (int xCount = 1; xCount < countOfXSteps; xCount++) {
+                values.set(xCount, tCount, iterate(xCount, tCount, values, f, c, xSteps, tSteps));
             }
         }
 
         return values;
     }
 
-    private double iterate(int x, int t, Values y, Func2 f, Func2 c, Func1 xSteps, Func1 tSteps) {
-        if (c.get(x, t + 1) <= xSteps.get(x - 1)) {
-            return toTopIterator(x, t, y, f, c, xSteps, tSteps);
+    private double iterate(int xCount, int tCount, Values y, Function2<Double, Double, Double> f, Function2<Double, Double, Double> c, Function1<Integer, Double> xSteps, Function1<Integer, Double> tSteps) {
+        if (c.invoke(xValues[xCount], tValues[tCount + 1]) <= xSteps.invoke(xCount - 1)) {
+            return toTopIterator(xCount, tCount, y, f, c, xSteps, tSteps);
         } else {
-            return toRightIterator(x, t, y, f, c, xSteps, tSteps);
+            return toRightIterator(xCount, tCount, y, f, c, xSteps, tSteps);
         }
     }
 
-    private double toRightIterator(int x, int t, Values y, Func2 f, Func2 c, Func1 xSteps, Func1 tSteps) {
-        return (f.get(x, t) - (1 / tSteps.get(x)) * (y.get(x - 1, t + 1) - y.get(x - 1, t))) * (xSteps.get(x - 1) / c.get(x, t + 1)) + y.get(x - 1, t + 1);
+    private double toRightIterator(int xCount, int tCount, Values y, Function2<Double, Double, Double> f, Function2<Double, Double, Double> c, Function1<Integer, Double> xSteps, Function1<Integer, Double> tSteps) {
+        return (f.invoke(xValues[xCount], tValues[tCount]) - (1 / tSteps.invoke(xCount)) * (y.get(xCount - 1, tCount + 1) - y.get(xCount - 1, tCount))) * (xSteps.invoke(xCount - 1) / c.invoke(xValues[xCount], tValues[tCount + 1])) + y.get(xCount - 1, tCount + 1);
     }
 
-    private double toTopIterator(int x, int t, Values y, Func2 f, Func2 c, Func1 xSteps, Func1 tSteps) {
-        return (f.get(x, t) - (c.get(x, t + 1) / xSteps.get(x - 1)) * (y.get(x, t) - y.get(x + 1, t))) * tSteps.get(t) + y.get(x, t);
+    private double toTopIterator(int x, int t, Values y, Function2<Double, Double, Double> f, Function2<Double, Double, Double> c, Function1<Integer, Double> xSteps, Function1<Integer, Double> tSteps) {
+        return (f.invoke(xValues[x], tValues[t]) - (c.invoke(xValues[x], tValues[t + 1]) / xSteps.invoke(x - 1)) * (y.get(x, t) - y.get(x + 1, t))) * tSteps.invoke(t) + y.get(x, t);
     }
 }
