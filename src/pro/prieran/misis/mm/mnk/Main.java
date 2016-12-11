@@ -34,8 +34,8 @@ public class Main extends Application {
     private final ObservableList<Point> points = FXCollections.observableArrayList();
 
     // Коэффициенты считают эти двое
-    private Approximator approximator1;
-    private Approximator approximator2;
+    private Approximator approximator1; // Синусами
+    private Approximator approximator2; // Многочленами
 
     public static void main(String[] args) {
         launch(args);
