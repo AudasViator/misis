@@ -1,4 +1,4 @@
-package pro.prieran.misis.chm.second_homework;
+package pro.prieran.misis.chm.second_homework.gradient;
 
 import pro.prieran.misis.chm.Utils;
 
@@ -9,13 +9,14 @@ import static java.lang.Math.pow;
 public class Gradient {
     private static final int COUNT_OF_DIGIT = 5;
     private static final double EPS = pow(10, -(COUNT_OF_DIGIT + 1));
+    private static final double EPS_DIV = 1E-8;
 
     public static void main(String[] args) {
         double[] startValues = {2, 1, 2};
         double[] newValues = new double[startValues.length];
         double lambda = 1;
 
-        for (int k = 0; k < 100_000; k++) {
+        for (int k = 0; k < 10_000; k++) {
             double[] grad = grad(startValues);
 
             for (int i = 0; i < startValues.length; i++) {
@@ -54,43 +55,33 @@ public class Gradient {
         }
     }
 
-        /*
-        1)x^2-y/2-cos(z)=0;
-        2)x^2+y^2-0.5=0;
-        3)-(2*x*pi^3)/27 + 2*y + z^3-1=0;
-        x=1/2 y=-12 z=pi/3
-
-        F = f^2 + g^2 + k^2
-
-        1)x^2+y^3=10
-        2)x^3-z+y^3=0
-        3)x^3+z=10
-
-        x = 0;    y = 2.15443;  z = 10
-        x = 0.5;  y = 2.13633;  z = 9.875
-
-        F = (x^2+y^3-10)^2 + (x^3-z+y^3)^2 + (x^3+z-10)^2
-        F = 2 z^2 - 2 y^3 z - 20 z + 2 y^6 + 2 x^3 y^3 + 2 x^2 y^3 - 20 y^3 + 2 x^6 + x^4 - 20 x^3 - 20 x^2 + 200
-        gradX = 2 x (2 x^2 + 6 x^4 + 2 (-10 + y^3) + 3 x (-10 + y^3))
-        gradY = 6 y^2 (-10+x^2+x^3+2 y^3-z)
-        gradZ = -2 (10 + y^3 - 2 z)
-     */
-
     private static double func(double[] args) {
         double x = args[0];
         double y = args[1];
         double z = args[2];
-        return pow((pow(x, 2) + pow(y, 3) - 10), 2) + pow((pow(x, 3) - z + pow(y, 3)), 2) + pow((pow(x, 3) + z - 10), 2);
+        return pow(f1(x, y, z), 2.0) + pow(f2(x, y, z), 2.0) + pow(f3(x, y, z), 2.0);
+    }
+
+    private static double f1(double x, double y, double z) {
+        return x + 0.02 * Math.pow(y, 2.0) - 0.005 * Math.pow(z, 2.0) - 1;
+    }
+
+    private static double f2(double x, double y, double z) {
+        return y - 0.1 * z - 0.2 * Math.pow(x, 2.0) - 1;
+    }
+
+    private static double f3(double x, double y, double z) {
+        return z - 0.2 * Math.pow(y, 4.0) - 0.0125 * Math.pow(x, 2.0) - 2;
     }
 
     private static double[] grad(double[] args) {
-        double x = args[0];
-        double y = args[1];
-        double z = args[2];
-        return new double[]{
-                2 * x * (2 * pow(x, 2) + 6 * pow(x, 4) + 2 * (-10 + pow(y, 3)) + 3 * x * (-10 + pow(y, 3))),
-                6 * pow(y, 2) * (-10 + pow(x, 2) + pow(x, 3) + 2 * pow(y, 3) - z),
-                -2 * (10 + pow(y, 3) - 2 * z)
-        };
+        double[] grad = new double[args.length];
+        for (int i = 0; i < grad.length; i++) {
+            double[] tempArgs = Arrays.copyOf(args, args.length);
+            tempArgs[i] += EPS_DIV;
+            grad[i] = (func(tempArgs) - func(args)) / EPS_DIV;
+        }
+
+        return grad;
     }
 }

@@ -39,15 +39,15 @@ fun main(args: Array<String>) {
 
 // Сами функции
 fun f1(x: Double, y: Double, z: Double): Double {
-    return x + 0.02 * y * y - 0.005 * z * z - 1
+    return x + 0.02 * Math.pow(y, 2.0) - 0.005 * Math.pow(z, 2.0) - 1
 }
 
 fun f2(x: Double, y: Double, z: Double): Double {
-    return y - 0.1 * z - 0.2 * x * x - 1
+    return y - 0.1 * z - 0.2 * Math.pow(x, 2.0) - 1
 }
 
 fun f3(x: Double, y: Double, z: Double): Double {
-    return z - 0.2 * y * y * y * y - 0.0125 * x * x - 2
+    return z - 0.2 * Math.pow(y, 4.0) - 0.0125 * Math.pow(x, 2.0) - 2
 }
 
 
