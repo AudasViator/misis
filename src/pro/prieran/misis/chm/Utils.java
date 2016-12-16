@@ -7,6 +7,13 @@ public class Utils {
     private Utils() {
     }
 
+    public static void printMatrix(double[][] matrix, int accuracy) {
+        for (double[] line : matrix) {
+            printArray(line, accuracy);
+            System.out.println();
+        }
+    }
+
     public static void printMatrix(double[][] matrix) {
         for (double[] line : matrix) {
             printArray(line);
