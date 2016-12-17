@@ -10,11 +10,15 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class Main extends Application {
 
     private static final int COUNT_OF_VISIBLE_POINTS = 200;
-    private static final double FROM = -1.0;
-    private static final double TO = 5.0;
+    private static final double FROM = -2.0;
+    private static final double TO = 4.0;
+
+    private final Brown brown = new Brown();
 
     public static void main(String[] args) {
         launch(args);
@@ -22,6 +26,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        brown.doIt();
+        List<Double> xPoints = brown.getXPoints();
+        List<Double> yPoints = brown.getYPoints();
+        List<Double> zPoints = brown.getZPoints();
 
         primaryStage.setTitle("График");
 
@@ -34,6 +42,9 @@ public class Main extends Application {
         final NumberAxis vAxis = new NumberAxis();
         zAxis.setLabel("value");
 
+        /*
+            Всё про X
+        */
         final LineChart<Number, Number> lineChartX = new LineChart<>(xAxis, vAxis);
         lineChartX.setLegendVisible(true);
         lineChartX.setAnimated(false);
@@ -53,9 +64,21 @@ public class Main extends Application {
         initXGraph(seriesF3X, 3);
         lineChartX.getData().add(seriesF3X);
 
+        XYChart.Series<Number, Number> seriesX = new XYChart.Series<>();
+        seriesX.setName("Шаги по X");
+        ObservableList dataX = seriesX.getData();
+        dataX.clear();
+        for (int i = 0; i < xPoints.size(); i++) {
+            dataX.add(new XYChart.Data<>(xPoints.get(i), 0.0));
+        }
+        lineChartX.getData().add(seriesX);
+
+        /*
+            Всё про Y
+        */
         final LineChart<Number, Number> lineChartY = new LineChart<>(yAxis, vAxis);
-        lineChartX.setLegendVisible(true);
-        lineChartX.setAnimated(false);
+        lineChartY.setLegendVisible(true);
+        lineChartY.setAnimated(false);
 
         XYChart.Series<Number, Number> seriesF1Y = new XYChart.Series<>();
         seriesF1Y.setName("Y_F1");
@@ -72,7 +95,18 @@ public class Main extends Application {
         initYGraph(seriesF3Y, 3);
         lineChartY.getData().add(seriesF3Y);
 
+        XYChart.Series<Number, Number> seriesY = new XYChart.Series<>();
+        seriesY.setName("Шаги по Y");
+        ObservableList dataY = seriesY.getData();
+        dataY.clear();
+        for (int i = 0; i < yPoints.size(); i++) {
+            dataY.add(new XYChart.Data<>(yPoints.get(i), 0.0));
+        }
+        lineChartY.getData().add(seriesY);
 
+        /*
+            Всё про Z
+        */
         final LineChart<Number, Number> lineChartZ = new LineChart<>(zAxis, vAxis);
         lineChartZ.setLegendVisible(true);
         lineChartZ.setAnimated(false);
@@ -92,6 +126,19 @@ public class Main extends Application {
         initZGraph(seriesF3Z, 3);
         lineChartZ.getData().add(seriesF3Z);
 
+        XYChart.Series<Number, Number> seriesZ = new XYChart.Series<>();
+        seriesZ.setName("Шаги по Z");
+        ObservableList dataZ = seriesZ.getData();
+        dataZ.clear();
+        for (int i = 0; i < zPoints.size(); i++) {
+            dataZ.add(new XYChart.Data<>(zPoints.get(i), 0.0));
+        }
+        lineChartZ.getData().add(seriesZ);
+
+
+        /*
+            Всё про вкладки
+        */
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
@@ -123,13 +170,13 @@ public class Main extends Application {
             double value;
             switch (numberOfFunction) {
                 case 1:
-                    value = BrownKt.f1(x, 1.50389, 3.03557);
+                    value = brown.f1(x, 1.50389, 3.03557);
                     break;
                 case 2:
-                    value = BrownKt.f2(x, 1.50389, 3.03557);
+                    value = brown.f2(x, 1.50389, 3.03557);
                     break;
                 case 3:
-                    value = BrownKt.f3(x, 1.50389, 3.03557);
+                    value = brown.f3(x, 1.50389, 3.03557);
                     break;
                 default:
                     throw new IllegalArgumentException();
@@ -146,13 +193,13 @@ public class Main extends Application {
             double value;
             switch (numberOfFunction) {
                 case 1:
-                    value = BrownKt.f1(1.00084, y, 3.03557);
+                    value = brown.f1(1.00084, y, 3.03557);
                     break;
                 case 2:
-                    value = BrownKt.f2(1.00084, y, 3.03557);
+                    value = brown.f2(1.00084, y, 3.03557);
                     break;
                 case 3:
-                    value = BrownKt.f3(1.00084, y, 3.03557);
+                    value = brown.f3(1.00084, y, 3.03557);
                     break;
                 default:
                     throw new IllegalArgumentException();
@@ -169,13 +216,13 @@ public class Main extends Application {
             double value;
             switch (numberOfFunction) {
                 case 1:
-                    value = BrownKt.f1(1.00084, 1.50389, z);
+                    value = brown.f1(1.00084, 1.50389, z);
                     break;
                 case 2:
-                    value = BrownKt.f2(1.00084, 1.50389, z);
+                    value = brown.f2(1.00084, 1.50389, z);
                     break;
                 case 3:
-                    value = BrownKt.f3(1.00084, 1.50389, z);
+                    value = brown.f3(1.00084, 1.50389, z);
                     break;
                 default:
                     throw new IllegalArgumentException();
