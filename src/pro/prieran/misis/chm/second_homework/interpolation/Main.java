@@ -3,11 +3,12 @@ package pro.prieran.misis.chm.second_homework.interpolation;
 import java.util.function.Function;
 
 public class Main {
-
     private static final Function<Double, Double> FUNC = x -> Math.log(x * Math.log(1 + x)) / x;
-    private static final int COUNT_OF_POINTS = 50;
+    private static final double ANSWER = 1.2399778876565500701;
+
+    private static final int COUNT_OF_POINTS = 40;
     private static final double FROM = 1.0;
-    private static final double TO = 10.0;
+    private static final double TO = 11.0;
 
     public static void main(String[] args) {
         double[][] diffs = new double[COUNT_OF_POINTS + 1][];
@@ -33,10 +34,10 @@ public class Main {
             }
         }
 
-        double yPalka = 0.0;
-        double currX = 4.0;
+        double solution = 0.0;
+        double currX = 8.0;
         for (int k = 0; k < 100; k++) {
-            double value = diffs[1][0];
+            double value = diffs[1][0]; // f(x0)
             for (int i = 2; i < COUNT_OF_POINTS; i++) {
                 double polynomes = 1.0;
                 for (int j = 0; j < i; j++) {
@@ -44,10 +45,13 @@ public class Main {
                 }
                 value += diffs[i + 1][0] * polynomes;
             }
+            double nextX = diffs[0][0] - (value - solution) / diffs[2][0];
 
-            double nextX = diffs[0][0] - (value - yPalka) / diffs[2][0];
-            System.out.println((k + 1) + ". Invert = " + nextX);
-            if (Math.abs(nextX - currX) < 1E-6) {
+            System.out.printf("%3d. Solution = %10.10f\n", (k + 1), nextX);
+            System.out.printf("        Error = %10.10f\n", (nextX - ANSWER));
+            System.out.println();
+
+            if (Math.abs(nextX - currX) < 1E-8) {
                 break;
             }
             currX = nextX;
