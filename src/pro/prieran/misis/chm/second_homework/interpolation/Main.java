@@ -33,15 +33,24 @@ public class Main {
             }
         }
 
-        double value = 0.0;
-        double x = 1.22;
-        for (int i = 0; i < COUNT_OF_POINTS; i++) {
-            double diff = 1.0;
-            for (int j = 0; j < i; j++) {
-                diff *= (x - diffs[0][j]);
+        double yPalka = 0.0;
+        double currX = 4.0;
+        for (int k = 0; k < 100; k++) {
+            double value = diffs[1][0];
+            for (int i = 2; i < COUNT_OF_POINTS; i++) {
+                double polynomes = 1.0;
+                for (int j = 0; j < i; j++) {
+                    polynomes *= (currX - diffs[0][j]);
+                }
+                value += diffs[i + 1][0] * polynomes;
             }
-            value += diffs[i + 1][0] * diff;
+
+            double nextX = diffs[0][0] - (value - yPalka) / diffs[2][0];
+            System.out.println((k + 1) + ". Invert = " + nextX);
+            if (Math.abs(nextX - currX) < 1E-6) {
+                break;
+            }
+            currX = nextX;
         }
-        System.out.println("x = " + x + ", f = " + value + ", true = " + FUNC.apply(x));
     }
 }
