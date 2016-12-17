@@ -26,7 +26,23 @@ class Approximator(val points: List<Point>, maxPow: Int) {
         for (i in 0..a.size - 1) {
             a[i][a[i].size - 1] = scalarProduct(newPolynomial(i))
         }
+
+        println(a.size)
+        printMatrix(a)
+        println()
+
         return gauss(a)
+    }
+
+    private fun printMatrix(matrix: Array<Array<Double>>) {
+        for (line in matrix) {
+            print("| ")
+            for (value in line) {
+                System.out.printf("%12.2f ", value)
+            }
+            print("|")
+            println()
+        }
     }
 
     // Многочлены Чебышева первого рода
@@ -59,7 +75,7 @@ class Approximator(val points: List<Point>, maxPow: Int) {
 //        return { x: Double -> pow(x, pow.toDouble()) }
 //    }
 
-    // Ортогонализация Грама ― Шмидта (или нет?)
+    // Ортогонализация Грама ― Шмидта
     private fun newPolynomial(pow: Int): (Double) -> Double {
         val zero = { x: Double -> 1.0 }
         val b1 = scalarProduct({ x -> x }, zero) /
@@ -152,25 +168,6 @@ class Approximator(val points: List<Point>, maxPow: Int) {
         for (i in 0..m - 1) {
             if (where[i] != -1) {
                 ans[i] = a[where[i]][m] / a[where[i]][i]
-            }
-        }
-
-        for (i in 0..n - 1) {
-            var sum = 0.0
-            for (j in 0..m - 1) {
-                sum += ans[j] * a[i][j]
-            }
-
-            if (abs(sum - a[i][m]) > EPS) {
-                println("No, ${m - 1}")
-                break
-            }
-        }
-
-        for (i in 0..m - 1) {
-            if (where[i] == -1) {
-                println("Inf")
-                break
             }
         }
 
