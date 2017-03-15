@@ -1,5 +1,7 @@
 package pro.prieran.misis.ctg;
 
+import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
+
 public class Graph {
     private int[] i; // Ребро откуда
     private int[] j; // Ребро куда
@@ -14,15 +16,19 @@ public class Graph {
         update();
     }
 
-    public void print() {
+    public edu.uci.ics.jung.graph.Graph<Number, Number> makeGraph() {
+        final edu.uci.ics.jung.graph.Graph<Number, Number> graph = new DirectedOrderedSparseMultigraph<>();
         for (int q = 0; q < getCountOfNodes(); q++) {
             System.out.println(q + " node");
             for (int k = h[q]; k != -1; k = l[k]) {
                 int begin = i[k];
                 int end = j[k];
                 System.out.println(begin + ";" + end);
+
+                graph.addEdge(k, begin, end);
             }
         }
+        return graph;
     }
 
     private void update() {
