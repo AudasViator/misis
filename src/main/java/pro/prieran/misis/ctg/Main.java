@@ -23,6 +23,8 @@ public class Main {
 
         Grapf grapf = new Grapf(i, j);
 
+        grapf.add(0, 3);
+
         printIt(grapf.makeJungGraph());
     }
 
