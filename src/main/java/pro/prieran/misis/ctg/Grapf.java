@@ -21,15 +21,28 @@ public class Grapf {
     }
 
     public void add(int from, int to) {
+        for (int i = 0; i < fromArray.length; i++) {
+            if (fromArray[i] == from && toArray[i] == to) {
+                return;
+            }
+        }
+
         int afterLast = findAfterLastPosition(fromArray);
         if (afterLast == -1) {
             afterLast = fromArray.length;
             fromArray = newArray(fromArray, fromArray.length * 2);
             toArray = newArray(toArray, toArray.length * 2);
+            nextEdge = newArray(nextEdge, nextEdge.length * 2);
         }
+
         fromArray[afterLast] = from;
         toArray[afterLast] = to;
-        update();
+
+        addEdge(afterLast);
+    }
+
+    public void delete(int from, int to) {
+
     }
 
     public Graph<Number, Number> makeJungGraph() {
@@ -57,10 +70,19 @@ public class Grapf {
             if (fromArray[k] == -1 || toArray[k] == -1) {
                 return;
             }
-            int from = fromArray[k];
-            nextEdge[k] = head[from];
-            head[from] = k;
+            addEdge(k);
         }
+    }
+
+    private void addEdge(int indexInFromArray) {
+        int afterLast = findAfterLastPosition(head);
+        if (afterLast == -1) {
+            head = newArray(head, head.length);
+        }
+
+        int from = fromArray[indexInFromArray];
+        nextEdge[indexInFromArray] = head[from];
+        head[from] = indexInFromArray;
     }
 
     private int getCountOfNodes() {
