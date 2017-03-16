@@ -1,31 +1,33 @@
 package pro.prieran.misis.ctg;
 
-import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 
-public class Graph {
+public class Grapf {
     private int[] i; // Ребро откуда
     private int[] j; // Ребро куда
 
     private int[] h; // Номер первой дуги (в массиве i), выходящей из i-ой вершины
     private int[] l; // Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
 
-    public Graph(int[] i, int[] j) {
+    public Grapf(int[] i, int[] j) {
         this.i = i;
         this.j = j;
 
         update();
     }
 
-    public edu.uci.ics.jung.graph.Graph<Number, Number> makeGraph() {
-        final edu.uci.ics.jung.graph.Graph<Number, Number> graph = new DirectedOrderedSparseMultigraph<>();
+    public Graph<Number, Number> makeJungGraph() {
+        final DirectedSparseMultigraph<Number, Number> graph = new DirectedSparseMultigraph<>();
         for (int q = 0; q < getCountOfNodes(); q++) {
-            System.out.println(q + " node");
+            graph.addVertex(q);
             for (int k = h[q]; k != -1; k = l[k]) {
                 int begin = i[k];
                 int end = j[k];
                 System.out.println(begin + ";" + end);
 
-                graph.addEdge(k, begin, end);
+                graph.addEdge(k, begin, end, EdgeType.DIRECTED);
             }
         }
         return graph;
