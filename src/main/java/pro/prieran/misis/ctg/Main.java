@@ -23,6 +23,17 @@ public class Main {
 
         Grapf grapf = new Grapf(i, j);
 
+        grapf.delete(0, 1);
+        grapf.delete(1, 2);
+        grapf.delete(2, 3);
+        grapf.delete(1, 3);
+        grapf.delete(0, 2);
+
+        grapf.add(0, 1);
+        grapf.add(1, 2);
+        grapf.add(2, 3);
+        grapf.add(1, 3);
+        grapf.add(0, 2);
         grapf.add(0, 3);
 
         printIt(grapf.makeJungGraph());

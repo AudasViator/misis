@@ -6,7 +6,10 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("WeakerAccess")
 public class Grapf {
+    private static final int NOTHING = -1;
+
     private int[] fromArray; // Ребро откуда
     private int[] toArray;   // Ребро куда
 
@@ -28,7 +31,7 @@ public class Grapf {
         }
 
         int afterLast = findAfterLastPosition(fromArray);
-        if (afterLast == -1) {
+        if (afterLast == NOTHING) {
             afterLast = fromArray.length;
             fromArray = newArray(fromArray, fromArray.length * 2);
             toArray = newArray(toArray, toArray.length * 2);
@@ -41,20 +44,42 @@ public class Grapf {
         addEdge(afterLast);
     }
 
+    // TODO: Можно переиспользовать пустые ячейки, возмоэно хранить отдельно
     public void delete(int from, int to) {
-
+        int i = 0;
+        for (; i < fromArray.length; i++) {
+            if (from == fromArray[i] && to == toArray[i]) {
+                fromArray[i] = NOTHING;
+                toArray[i] = NOTHING;
+                break;
+            }
+        }
+        if (i != fromArray.length) {
+            if (head[from] == i) {
+                head[from] = nextEdge[i];
+                nextEdge[i] = NOTHING;
+            } else {
+                for (int k = head[i]; k != NOTHING; k = nextEdge[k]) {
+                    if (nextEdge[k] == i) {
+                        nextEdge[k] = nextEdge[i];
+                    }
+                }
+            }
+        }
     }
 
     public Graph<Number, Number> makeJungGraph() {
         final DirectedSparseMultigraph<Number, Number> graph = new DirectedSparseMultigraph<>();
         for (int q = 0; q < head.length; q++) {
             graph.addVertex(q);
-            for (int k = head[q]; k != -1; k = nextEdge[k]) {
+            for (int k = head[q]; k != NOTHING; k = nextEdge[k]) {
                 int begin = fromArray[k];
                 int end = toArray[k];
                 System.out.println(begin + ";" + end);
 
-                graph.addEdge(k, begin, end, EdgeType.DIRECTED);
+                if (begin != NOTHING && end != NOTHING) {
+                    graph.addEdge(k, begin, end, EdgeType.DIRECTED);
+                }
             }
         }
         return graph;
@@ -67,7 +92,7 @@ public class Grapf {
         nextEdge = newArray(null, fromArray.length);
 
         for (int k = 0; k < fromArray.length; k++) {
-            if (fromArray[k] == -1 || toArray[k] == -1) {
+            if (fromArray[k] == NOTHING || toArray[k] == NOTHING) {
                 return;
             }
             addEdge(k);
@@ -76,7 +101,7 @@ public class Grapf {
 
     private void addEdge(int indexInFromArray) {
         int afterLast = findAfterLastPosition(head);
-        if (afterLast == -1) {
+        if (afterLast == NOTHING) {
             head = newArray(head, head.length);
         }
 
@@ -85,6 +110,7 @@ public class Grapf {
         head[from] = indexInFromArray;
     }
 
+    // TODO: Хранить, а не вычислять
     private int getCountOfNodes() {
         int m = 0;
         for (int k = 0; k < fromArray.length; k++) {
@@ -102,7 +128,7 @@ public class Grapf {
     private int[] newArray(@Nullable int[] oldArray, int newCapacity) {
         int[] newArray = new int[newCapacity];
         for (int i = 0; i < newArray.length; i++) {
-            newArray[i] = -1;
+            newArray[i] = NOTHING;
         }
         if (oldArray != null) {
             System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
@@ -112,10 +138,10 @@ public class Grapf {
 
     private int findAfterLastPosition(@NotNull int[] array) {
         for (int i = 0; i < array.length; i++) {
-            if (array[i] == -1) {
+            if (array[i] == NOTHING) {
                 return i;
             }
         }
-        return -1;
+        return NOTHING;
     }
 }
