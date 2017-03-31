@@ -44,7 +44,7 @@ public class Grapf {
         addEdge(afterLast);
     }
 
-    // TODO: Можно переиспользовать пустые ячейки, возмоэно хранить отдельно
+    // TODO: Можно переиспользовать пустые ячейки, возможно хранить отдельно
     public void delete(int from, int to) {
         int i = 0;
         for (; i < fromArray.length; i++) {
@@ -86,7 +86,7 @@ public class Grapf {
     }
 
     private void update() {
-        int countOfNodes = getCountOfNodes();
+        final int countOfNodes = getCountOfNodes();
 
         head = newArray(null, countOfNodes);
         nextEdge = newArray(null, fromArray.length);
@@ -110,7 +110,6 @@ public class Grapf {
         head[from] = indexInFromArray;
     }
 
-    // TODO: Хранить, а не вычислять
     private int getCountOfNodes() {
         int m = 0;
         for (int k = 0; k < fromArray.length; k++) {

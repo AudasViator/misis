@@ -12,11 +12,16 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Main {
     private static final int SIZE = 800;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         int[] i = {0, 1, 2, 1, 0};
         int[] j = {1, 2, 3, 3, 2};
@@ -36,7 +41,43 @@ public class Main {
         grapf.add(0, 2);
         grapf.add(0, 3);
 
-        printIt(grapf.makeJungGraph());
+        /*
+            TODO: Поиск в ширину (принимает номер вершины)
+            Краскола с непересекающимися множествами
+         */
+
+//        printIt(grapf.makeJungGraph());
+        printIt(parseIt().makeJungGraph());
+    }
+
+    private static Grapf parseIt() throws IOException {
+        Path path = Paths.get("C:\\Users\\prieran\\YandexDisk\\МИСиС\\6семестр\\Графы\\graph.txt");
+
+        BufferedReader reader = Files.newBufferedReader(path);
+        String line = reader.readLine();
+        String[] numbers = line.split(" ");
+
+        final int countOfVertexes = Integer.parseInt(numbers[0]);
+        final int countOfEdges = Integer.parseInt(numbers[1]);
+
+        int[] i = new int[countOfEdges];
+        int[] j = new int[countOfEdges];
+
+        for (int k = 0; k < numbers.length; k++) {
+            i[k] = Integer.parseInt(numbers[0]);
+            j[k] = Integer.parseInt(numbers[1]);
+        }
+
+        for (int m = 0; m < countOfEdges; m++) {
+            line = reader.readLine();
+            numbers = line.split(" ");
+            i[m] = Integer.parseInt(numbers[0]);
+            j[m] = Integer.parseInt(numbers[1]);
+        }
+
+        reader.close();
+
+        return new Grapf(i, j);
     }
 
     private static void printIt(Graph<Number, Number> graph) {
