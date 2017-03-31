@@ -41,10 +41,14 @@ public class Grapf {
 
         fromArray[countOfEdges] = from;
         toArray[countOfEdges] = to;
-        addEdge(countOfEdges);
+
+        if (countOfEdges >= fromArray.length) {
+            head = newArray(head, head.length);
+        }
+        nextEdge[countOfEdges] = head[from];
+        head[from] = countOfEdges;
 
         countOfEdges++;
-
     }
 
     public void delete(int from, int to) {
@@ -97,18 +101,8 @@ public class Grapf {
             if (fromArray[k] == NOTHING || toArray[k] == NOTHING) {
                 return;
             }
-            addEdge(k);
+            add(fromArray[k], toArray[k]);
         }
-    }
-
-    private void addEdge(int indexInFromArray) {
-        if (countOfEdges >= fromArray.length) {
-            head = newArray(head, head.length);
-        }
-
-        int from = fromArray[indexInFromArray];
-        nextEdge[indexInFromArray] = head[from];
-        head[from] = indexInFromArray;
     }
 
     private int getCountOfNodes() {
