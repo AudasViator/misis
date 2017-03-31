@@ -21,10 +21,13 @@ import java.nio.file.Paths;
 public class Main {
     private static final int SIZE = 800;
 
+    // TODO: Краскала с непересекающимися множествами (сжатием путей); поиск в ширину от данной вершины, выводит список дуг
+    // TODO: Поиск в глубину
+    // TODO: Дейкстры
     public static void main(String[] args) throws IOException {
 
-        int[] i = {0, 1, 2, 1, 0};
-        int[] j = {1, 2, 3, 3, 2};
+        int[] i = {0, 1, 2, 1};
+        int[] j = {1, 2, 3, 3};
 
         Grapf grapf = new Grapf(i, j);
 
@@ -41,13 +44,8 @@ public class Main {
         grapf.add(0, 2);
         grapf.add(0, 3);
 
-        /*
-            TODO: Поиск в ширину (принимает номер вершины)
-            Краскола с непересекающимися множествами
-         */
-
-//        printIt(grapf.makeJungGraph());
-        printIt(parseIt().makeJungGraph());
+        printIt(grapf.makeJungGraph());
+//        printIt(parseIt().makeJungGraph());
     }
 
     private static Grapf parseIt() throws IOException {

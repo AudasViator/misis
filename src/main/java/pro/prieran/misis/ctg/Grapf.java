@@ -3,7 +3,6 @@ package pro.prieran.misis.ctg;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
@@ -16,35 +15,38 @@ public class Grapf {
     private int[] head;      // Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
     private int[] nextEdge;  // Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
 
+    private int countOfEdges;
+
     public Grapf(int[] fromArray, int[] toArray) {
         this.fromArray = fromArray;
         this.toArray = toArray;
+        countOfEdges = fromArray.length;
 
         update();
     }
 
     public void add(int from, int to) {
-        for (int i = 0; i < fromArray.length; i++) {
-            if (fromArray[i] == from && toArray[i] == to) {
+        for (int k = head[from]; k != -1; k = nextEdge[k]) {
+            if (toArray[k] == to) {
                 return;
             }
         }
 
-        int afterLast = findAfterLastPosition(fromArray);
-        if (afterLast == NOTHING) {
-            afterLast = fromArray.length;
+        if (countOfEdges >= fromArray.length) {
+            countOfEdges = fromArray.length;
             fromArray = newArray(fromArray, fromArray.length * 2);
             toArray = newArray(toArray, toArray.length * 2);
             nextEdge = newArray(nextEdge, nextEdge.length * 2);
         }
 
-        fromArray[afterLast] = from;
-        toArray[afterLast] = to;
+        fromArray[countOfEdges] = from;
+        toArray[countOfEdges] = to;
+        addEdge(countOfEdges);
 
-        addEdge(afterLast);
+        countOfEdges++;
+
     }
 
-    // TODO: Можно переиспользовать пустые ячейки, возможно хранить отдельно
     public void delete(int from, int to) {
         int i = 0;
         for (; i < fromArray.length; i++) {
@@ -100,8 +102,7 @@ public class Grapf {
     }
 
     private void addEdge(int indexInFromArray) {
-        int afterLast = findAfterLastPosition(head);
-        if (afterLast == NOTHING) {
+        if (countOfEdges >= fromArray.length) {
             head = newArray(head, head.length);
         }
 
@@ -133,14 +134,5 @@ public class Grapf {
             System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
         }
         return newArray;
-    }
-
-    private int findAfterLastPosition(@NotNull int[] array) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] == NOTHING) {
-                return i;
-            }
-        }
-        return NOTHING;
     }
 }
