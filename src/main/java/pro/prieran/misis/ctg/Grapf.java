@@ -12,14 +12,17 @@ public class Grapf {
     private int[] fromArray; // Ребро откуда
     private int[] toArray;   // Ребро куда
 
+    private int[] weights;
+
     private int[] head;      // Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
     private int[] nextEdge;  // Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
 
     private int countOfEdges;
 
-    public Grapf(int[] fromArray, int[] toArray) {
+    public Grapf(int[] fromArray, int[] toArray, @Nullable int[] weights) {
         this.fromArray = fromArray;
         this.toArray = toArray;
+        this.weights = weights;
         countOfEdges = fromArray.length;
 
         update();
@@ -41,14 +44,17 @@ public class Grapf {
 
         fromArray[countOfEdges] = from;
         toArray[countOfEdges] = to;
+        addEdge(countOfEdges);
 
+        countOfEdges++;
+    }
+
+    private void addInternal(int from, int to) {
         if (countOfEdges >= fromArray.length) {
             head = newArray(head, head.length);
         }
         nextEdge[countOfEdges] = head[from];
         head[from] = countOfEdges;
-
-        countOfEdges++;
     }
 
     public void delete(int from, int to) {
@@ -91,6 +97,41 @@ public class Grapf {
         return graph;
     }
 
+    public String makeGraphvizString() {
+        StringBuilder graph = new StringBuilder();
+
+        graph.append("digraph {\n");
+
+        for (int q = 0; q < head.length; q++) {
+            for (int k = head[q]; k != NOTHING; k = nextEdge[k]) {
+                int begin = fromArray[k];
+                int end = toArray[k];
+                int weight = weights[k];
+
+                if (begin != NOTHING && end != NOTHING) {
+                    graph.append("\t\t");
+
+                    graph.append(Integer.toString(begin));
+                    graph.append(" -> ");
+                    graph.append(Integer.toString(end));
+
+                    graph
+                            .append("[label=\"")
+                            .append(weight)
+                            .append("\",weight=\"")
+                            .append(weight)
+                            .append("\"]");
+
+                    graph.append(";\n");
+                }
+            }
+        }
+
+        graph.append("\t}");
+
+        return graph.toString();
+    }
+
     private void update() {
         final int countOfNodes = getCountOfNodes();
 
@@ -101,8 +142,18 @@ public class Grapf {
             if (fromArray[k] == NOTHING || toArray[k] == NOTHING) {
                 return;
             }
-            add(fromArray[k], toArray[k]);
+            addEdge(k);
         }
+    }
+
+    private void addEdge(int indexInFromArray) {
+        if (countOfEdges >= fromArray.length) {
+            head = newArray(head, head.length);
+        }
+
+        int from = fromArray[indexInFromArray];
+        nextEdge[indexInFromArray] = head[from];
+        head[from] = indexInFromArray;
     }
 
     private int getCountOfNodes() {

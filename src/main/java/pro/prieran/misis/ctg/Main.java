@@ -13,10 +13,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class Main {
     private static final int SIZE = 800;
@@ -28,24 +31,37 @@ public class Main {
 
         int[] i = {0, 1, 2, 1};
         int[] j = {1, 2, 3, 3};
+        int[] weights = {1, 2, 3, 4};
 
-        Grapf grapf = new Grapf(i, j);
+        Grapf grapf = new Grapf(i, j, weights);
 
-        grapf.delete(0, 1);
-        grapf.delete(1, 2);
-        grapf.delete(2, 3);
-        grapf.delete(1, 3);
-        grapf.delete(0, 2);
+//        grapf.delete(0, 1);
+//        grapf.delete(1, 2);
+//        grapf.delete(2, 3);
+//        grapf.delete(1, 3);
+//        grapf.delete(0, 2);
 
-        grapf.add(0, 1);
-        grapf.add(1, 2);
-        grapf.add(2, 3);
-        grapf.add(1, 3);
-        grapf.add(0, 2);
-        grapf.add(0, 3);
+//        grapf.add(0, 1);
+//        grapf.add(1, 2);
+//        grapf.add(2, 3);
+//        grapf.add(1, 3);
+//        grapf.add(0, 2);
+//        grapf.add(0, 3);
 
-        printIt(grapf.makeJungGraph());
+//        printIt(grapf.makeJungGraph());
+        System.out.println(grapf.makeGraphvizString());
+        writeIt(grapf.makeGraphvizString());
 //        printIt(parseIt().makeJungGraph());
+    }
+
+    private static void writeIt(String graph) throws IOException {
+        Path path = Paths.get("graph.gv");
+        BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+        writer.write(graph);
+        writer.close();
+
+//        Runtime.getRuntime().exec("explorer.exe /select," + path);
+        Desktop.getDesktop().open(path.toFile());
     }
 
     private static Grapf parseIt() throws IOException {
@@ -75,7 +91,7 @@ public class Main {
 
         reader.close();
 
-        return new Grapf(i, j);
+        return new Grapf(i, j, null);
     }
 
     private static void printIt(Graph<Number, Number> graph) {
