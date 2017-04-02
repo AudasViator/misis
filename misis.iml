@@ -50,11 +50,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.1.1" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:19.0" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.jung:jung-visualization:2.1.1" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.jung:jung-algorithms:2.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jetbrains.kotlin:kotlin-test:1.1.1" level="project" />

@@ -1,17 +1,6 @@
 package pro.prieran.misis.ctg;
 
-import com.google.common.base.Functions;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -48,13 +37,12 @@ public class Main {
 //        grapf.add(0, 2);
 //        grapf.add(0, 3);
 
-//        printIt(grapf.makeJungGraph());
-        System.out.println(grapf.makeGraphvizString());
-        writeIt(grapf.makeGraphvizString());
-//        printIt(parseIt().makeJungGraph());
+        String graph = grapf.makeGraphvizString();
+        System.out.println(graph);
+        writeAndRunGraph(graph);
     }
 
-    private static void writeIt(String graph) throws IOException {
+    private static void writeAndRunGraph(String graph) throws IOException {
         Path path = Paths.get("graph.gv");
         BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
         writer.write(graph);
@@ -92,36 +80,5 @@ public class Main {
         reader.close();
 
         return new Grapf(i, j, null);
-    }
-
-    private static void printIt(Graph<Number, Number> graph) {
-        VisualizationImageServer<Number, Number> imageServer
-                = new VisualizationImageServer<>(new CircleLayout<>(graph), new Dimension(SIZE, SIZE));
-
-        imageServer.getRenderer().setVertexRenderer(
-                new GradientVertexRenderer<>(
-                        Color.white, Color.LIGHT_GRAY,
-                        Color.white, Color.LIGHT_GRAY,
-                        imageServer.getPickedVertexState(),
-                        false));
-        imageServer.getRenderContext().setEdgeDrawPaintTransformer(Functions.constant(Color.DARK_GRAY));
-        imageServer.getRenderContext().setArrowFillPaintTransformer(Functions.constant(Color.DARK_GRAY));
-        imageServer.getRenderContext().setArrowDrawPaintTransformer(Functions.constant(Color.DARK_GRAY));
-
-        imageServer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-        imageServer.getRenderer().getVertexLabelRenderer().setPositioner(new BasicVertexLabelRenderer.OutsidePositioner());
-        imageServer.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
-
-        final JFrame frame = new JFrame();
-        Container content = frame.getContentPane();
-
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        Image im = imageServer.getImage(new Point2D.Double(SIZE / 2, SIZE / 2), new Dimension(SIZE, SIZE));
-        Icon icon = new ImageIcon(im);
-        JLabel label = new JLabel(icon);
-        content.add(label);
-        frame.pack();
-        frame.setVisible(true);
     }
 }

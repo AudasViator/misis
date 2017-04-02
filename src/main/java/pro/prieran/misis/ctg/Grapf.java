@@ -1,8 +1,5 @@
 package pro.prieran.misis.ctg;
 
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
@@ -78,23 +75,6 @@ public class Grapf {
                 }
             }
         }
-    }
-
-    public Graph<Number, Number> makeJungGraph() {
-        final DirectedSparseMultigraph<Number, Number> graph = new DirectedSparseMultigraph<>();
-        for (int q = 0; q < head.length; q++) {
-            graph.addVertex(q);
-            for (int k = head[q]; k != NOTHING; k = nextEdge[k]) {
-                int begin = fromArray[k];
-                int end = toArray[k];
-                System.out.println(begin + ";" + end);
-
-                if (begin != NOTHING && end != NOTHING) {
-                    graph.addEdge(k, begin, end, EdgeType.DIRECTED);
-                }
-            }
-        }
-        return graph;
     }
 
     public String makeGraphvizString() {
