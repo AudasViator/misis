@@ -2,6 +2,8 @@ package pro.prieran.misis.ctg;
 
 import org.jetbrains.annotations.Nullable;
 
+import static pro.prieran.misis.ctg.ArrayUtils.newArray;
+
 @SuppressWarnings("WeakerAccess")
 public class Grapf {
     private static final int NOTHING = -1;
@@ -9,7 +11,7 @@ public class Grapf {
     private int[] fromArray; // Ребро откуда
     private int[] toArray;   // Ребро куда
 
-    private int[] weights;
+    private int[] weights;   // Единственное логичное название
 
     private int[] head;      // Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
     private int[] nextEdge;  // Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
@@ -25,7 +27,7 @@ public class Grapf {
         update();
     }
 
-    public void add(int from, int to) {
+    public void add(int from, int to, int weight) {
         for (int k = head[from]; k != -1; k = nextEdge[k]) {
             if (toArray[k] == to) {
                 return;
@@ -34,43 +36,40 @@ public class Grapf {
 
         if (countOfEdges >= fromArray.length) {
             countOfEdges = fromArray.length;
-            fromArray = newArray(fromArray, fromArray.length * 2);
-            toArray = newArray(toArray, toArray.length * 2);
-            nextEdge = newArray(nextEdge, nextEdge.length * 2);
+            fromArray = newArray(fromArray, fromArray.length * 2, NOTHING);
+            toArray = newArray(toArray, toArray.length * 2, NOTHING);
+            nextEdge = newArray(nextEdge, nextEdge.length * 2, NOTHING);
+            weights = newArray(weights, weights.length * 2, NOTHING);
         }
 
         fromArray[countOfEdges] = from;
         toArray[countOfEdges] = to;
-        addEdge(countOfEdges);
+        weights[countOfEdges] = weight;
+
+        addInternal(countOfEdges);
 
         countOfEdges++;
     }
 
-    private void addInternal(int from, int to) {
-        if (countOfEdges >= fromArray.length) {
-            head = newArray(head, head.length);
-        }
-        nextEdge[countOfEdges] = head[from];
-        head[from] = countOfEdges;
-    }
-
     public void delete(int from, int to) {
-        int i = 0;
-        for (; i < fromArray.length; i++) {
-            if (from == fromArray[i] && to == toArray[i]) {
-                fromArray[i] = NOTHING;
-                toArray[i] = NOTHING;
+        int k = head[from];
+        for (; k != -1; k = nextEdge[k]) {
+            if (toArray[k] == to) {
+                fromArray[k] = NOTHING;
+                toArray[k] = NOTHING;
+                weights[k] = NOTHING;
                 break;
             }
         }
-        if (i != fromArray.length) {
-            if (head[from] == i) {
-                head[from] = nextEdge[i];
-                nextEdge[i] = NOTHING;
+
+        if (k != -1) {
+            if (head[from] == k) {
+                head[from] = nextEdge[k];
+                nextEdge[k] = NOTHING;
             } else {
-                for (int k = head[i]; k != NOTHING; k = nextEdge[k]) {
-                    if (nextEdge[k] == i) {
-                        nextEdge[k] = nextEdge[i];
+                for (int m = head[k]; m != NOTHING; m = nextEdge[m]) {
+                    if (nextEdge[m] == k) {
+                        nextEdge[m] = nextEdge[k];
                     }
                 }
             }
@@ -115,20 +114,20 @@ public class Grapf {
     private void update() {
         final int countOfNodes = getCountOfNodes();
 
-        head = newArray(null, countOfNodes);
-        nextEdge = newArray(null, fromArray.length);
+        head = newArray(null, countOfNodes, NOTHING);
+        nextEdge = newArray(null, fromArray.length, NOTHING);
 
         for (int k = 0; k < fromArray.length; k++) {
             if (fromArray[k] == NOTHING || toArray[k] == NOTHING) {
                 return;
             }
-            addEdge(k);
+            addInternal(k);
         }
     }
 
-    private void addEdge(int indexInFromArray) {
+    private void addInternal(int indexInFromArray) {
         if (countOfEdges >= fromArray.length) {
-            head = newArray(head, head.length);
+            head = newArray(head, head.length, NOTHING);
         }
 
         int from = fromArray[indexInFromArray];
@@ -150,14 +149,5 @@ public class Grapf {
         return m;
     }
 
-    private int[] newArray(@Nullable int[] oldArray, int newCapacity) {
-        int[] newArray = new int[newCapacity];
-        for (int i = 0; i < newArray.length; i++) {
-            newArray[i] = NOTHING;
-        }
-        if (oldArray != null) {
-            System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
-        }
-        return newArray;
-    }
+
 }

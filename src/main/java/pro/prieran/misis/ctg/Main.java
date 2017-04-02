@@ -24,18 +24,18 @@ public class Main {
 
         Grapf grapf = new Grapf(i, j, weights);
 
-//        grapf.delete(0, 1);
-//        grapf.delete(1, 2);
-//        grapf.delete(2, 3);
-//        grapf.delete(1, 3);
-//        grapf.delete(0, 2);
+        grapf.delete(0, 1);
+        grapf.delete(1, 2);
+        grapf.delete(2, 3);
+        grapf.delete(1, 3);
+        grapf.delete(0, 2);
 
-//        grapf.add(0, 1);
-//        grapf.add(1, 2);
-//        grapf.add(2, 3);
-//        grapf.add(1, 3);
-//        grapf.add(0, 2);
-//        grapf.add(0, 3);
+        grapf.add(0, 1, 1);
+        grapf.add(1, 2, 2);
+        grapf.add(2, 3, 3);
+        grapf.add(1, 3, 4);
+        grapf.add(0, 2, 5);
+        grapf.add(0, 3, 6);
 
         String graph = grapf.makeGraphvizString();
         System.out.println(graph);
