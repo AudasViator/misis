@@ -62,7 +62,7 @@ public class Grapf {
             }
         }
 
-        if (k != -1) {
+        if (k != NOTHING) {
             if (head[from] == k) {
                 head[from] = nextEdge[k];
                 nextEdge[k] = NOTHING;
@@ -149,5 +149,113 @@ public class Grapf {
         return m;
     }
 
+    private int[] kk = new int[42];
 
+    public String theKruskal() {
+        for (int i = 0; i < kk.length; i++) {
+            kk[i] = NOTHING;
+        }
+
+        // Сортировка вставками
+        for (int j = 0; j < weights.length; j++) {
+            int current = weights[j];
+            int i = j - 1;
+            while (i > 0 && weights[i] > current) {
+                weights[i + 1] = weights[i];
+                fromArray[i + 1] = fromArray[i];
+                toArray[i + 1] = toArray[i];
+                i--;
+            }
+            weights[i + 1] = current;
+        }
+
+        int w = 0;
+        DSU dsu = new DSU();
+        // TODO, TODO, TODO, TU-TUUuUU, TU-DU-DU
+        for (int k = 0; k < getCountOfNodes() && w < fromArray.length - 1; k++) {
+            int i = fromArray[k];
+            int j = toArray[k];
+
+            int mI = dsu.findSet(i);
+            int mJ = dsu.findSet(j);
+
+            if (mI != mJ) {
+                kk[w] = k;
+                w++;
+                dsu.unionSets(mI, mJ);
+            }
+        }
+
+        StringBuilder graph = new StringBuilder();
+        graph.append("digraph {\n");
+
+        for (int i = 0; i < kk.length; i++) {
+            if (kk[i] != NOTHING) {
+                int begin = fromArray[i];
+                int end = toArray[i];
+                int weight = weights[i];
+
+                graph.append("\t\t");
+
+                graph.append(Integer.toString(begin));
+                graph.append(" -> ");
+                graph.append(Integer.toString(end));
+
+                graph
+                        .append("[label=\"")
+                        .append(weight)
+                        .append("\",weight=\"")
+                        .append(weight)
+                        .append("\"]");
+
+                graph.append(";\n");
+            }
+        }
+
+        graph.append("\t}");
+
+        return graph.toString();
+    }
+
+    private static class DSU {
+        private int[] parents = new int[42]; // TODO: Dynamic
+        private int[] rank = new int[42];
+
+        public DSU() {
+            for (int i = 0; i < parents.length; i++) {
+                makeSet(i);
+            }
+        }
+
+        private void makeSet(int value) {
+            parents[value] = value;
+            rank[value] = 0;
+        }
+
+        private int findSet(int value) {
+            if (value == parents[value]) {
+                return value;
+            } else {
+                return parents[value] = findSet(parents[value]); // Чёт я думал, что так нельзя
+            }
+        }
+
+        private void unionSets(int first, int second) {
+            first = findSet(first);
+            second = findSet(second);
+            if (first != second) {
+                if (rank[first] < rank[second]) {
+                    parents[first] = second;
+                    if (rank[first] == rank[second]) {
+                        rank[second]++;
+                    }
+                } else {
+                    parents[second] = first;
+                    if (rank[first] == rank[second]) {
+                        rank[first]++;
+                    }
+                }
+            }
+        }
+    }
 }

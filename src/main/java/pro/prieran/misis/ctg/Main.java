@@ -11,35 +11,23 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class Main {
-    private static final int SIZE = 800;
 
     // TODO: Краскала с непересекающимися множествами (сжатием путей); поиск в ширину от данной вершины, выводит список дуг
     // TODO: Поиск в глубину
     // TODO: Дейкстры
     public static void main(String[] args) throws IOException {
 
-        int[] i = {0, 1, 2, 1};
-        int[] j = {1, 2, 3, 3};
-        int[] weights = {1, 2, 3, 4};
+        int[] i = {0, 1, 2, 1, 0, 0};
+        int[] j = {1, 2, 3, 3, 2, 3};
+        int[] weights = {1, 2, 3, 4, 5, 6};
 
         Grapf grapf = new Grapf(i, j, weights);
 
-        grapf.delete(0, 1);
-        grapf.delete(1, 2);
-        grapf.delete(2, 3);
-        grapf.delete(1, 3);
-        grapf.delete(0, 2);
-
-        grapf.add(0, 1, 1);
-        grapf.add(1, 2, 2);
-        grapf.add(2, 3, 3);
-        grapf.add(1, 3, 4);
-        grapf.add(0, 2, 5);
-        grapf.add(0, 3, 6);
-
         String graph = grapf.makeGraphvizString();
         System.out.println(graph);
-        writeAndRunGraph(graph);
+        String theKruskal = grapf.theKruskal();
+        System.out.println(theKruskal);
+        writeAndRunGraph(theKruskal);
     }
 
     private static void writeAndRunGraph(String graph) throws IOException {
