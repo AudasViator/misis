@@ -156,22 +156,13 @@ public class Grapf {
             kk[i] = NOTHING;
         }
 
-        // Сортировка вставками
-        for (int j = 0; j < weights.length; j++) {
-            int current = weights[j];
-            int i = j - 1;
-            while (i > 0 && weights[i] > current) {
-                weights[i + 1] = weights[i];
-                fromArray[i + 1] = fromArray[i];
-                toArray[i + 1] = toArray[i];
-                i--;
-            }
-            weights[i + 1] = current;
-        }
+        ArrayUtils.sortArraysLikeFirst(weights, fromArray, toArray);
 
         int w = 0;
         DSU dsu = new DSU();
-        // TODO, TODO, TODO, TU-TUUuUU, TU-DU-DU
+        // TODO
+        // TODO
+        // TODO, TODO, TODO, TODO, TO-DOOOO
         for (int k = 0; k < getCountOfNodes() && w < fromArray.length - 1; k++) {
             int i = fromArray[k];
             int j = toArray[k];
