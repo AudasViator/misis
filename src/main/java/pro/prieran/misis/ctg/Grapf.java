@@ -151,6 +151,7 @@ public class Grapf {
 
     private int[] kk = new int[42];
 
+    // FIXME: Граф как бы неориентированный
     public String theKruskal() {
         for (int i = 0; i < kk.length; i++) {
             kk[i] = NOTHING;
@@ -159,10 +160,10 @@ public class Grapf {
         ArrayUtils.sortArraysLikeFirst(weights, fromArray, toArray);
 
         int w = 0;
-        DSU dsu = new DSU();
+        DSU dsu = new DSU(kk);
         // TODO
         // TODO
-        // TODO, TODO, TODO, TODO, TO-DOOOO
+        // TODO, TODO, TODO, TO-DOOOO
         for (int k = 0; k < getCountOfNodes() && w < fromArray.length - 1; k++) {
             int i = fromArray[k];
             int j = toArray[k];
@@ -180,7 +181,7 @@ public class Grapf {
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
 
-        for (int i = 0; i < kk.length; i++) {
+        for (int i = 0; i < 6; i++) { // TODO: что-нибудь хранить
             if (kk[i] != NOTHING) {
                 int begin = fromArray[i];
                 int end = toArray[i];
@@ -209,10 +210,11 @@ public class Grapf {
     }
 
     private static class DSU {
-        private int[] parents = new int[42]; // TODO: Dynamic
+        private int[] parents;// = new int[42]; // TODO: Dynamic
         private int[] rank = new int[42];
 
-        public DSU() {
+        public DSU(int[] parents) {
+            this.parents = parents;
             for (int i = 0; i < parents.length; i++) {
                 makeSet(i);
             }

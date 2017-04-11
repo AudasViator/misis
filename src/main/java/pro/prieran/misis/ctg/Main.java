@@ -17,8 +17,8 @@ public class Main {
     // TODO: Дейкстры
     public static void main(String[] args) throws IOException {
 
-        int[] i =       {1, 2, 1, 4, 2, 6, 2, 5, 3, 3};
-        int[] j =       {2, 4, 4, 6, 6, 5, 5, 3, 2, 1};
+        int[] i =       {0, 1, 0, 3, 1, 5, 1, 4, 2, 2};
+        int[] j =       {1, 3, 3, 5, 5, 4, 4, 2, 1, 0};
         int[] weights = {1, 1, 1, 2, 9, 1, 8, 1, 4, 1};
 
         Grapf grapf = new Grapf(i, j, weights);
