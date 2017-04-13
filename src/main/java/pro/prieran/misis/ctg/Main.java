@@ -17,13 +17,11 @@ public class Main {
     // TODO: Дейкстры
     public static void main(String[] args) throws IOException {
 
-        int[] i =       {0, 1, 0, 3, 1, 5, 1, 4, 2, 2};
-        int[] j =       {1, 3, 3, 5, 5, 4, 4, 2, 1, 0};
-        int[] weights = {1, 1, 1, 2, 9, 1, 8, 1, 4, 1};
+        final int[] from = {0, 21, 15, 7, 6, 13, 28, 4, 28, 4, 20, 19, 1, 5, 22, 4, 22, 22, 16, 16, 19, 24, 0, 12, 10, 26, 21, 3, 13, 3};
+        final int[] to = {1, 7, 6, 18, 11, 22, 16, 22, 8, 9, 21, 10, 18, 19, 15, 0, 10, 0, 3, 20, 8, 9, 5, 22, 16, 20, 15, 12, 24, 28};
+        final int[] weights = {1, 16, 12, 1, 7, 14, 2, 18, 15, 10, 3, 19, 5, 8, 12, 4, 8, 12, 17, 9, 16, 19, 1, 5, 9, 1, 6, 7, 15, 17};
 
-        Grapf grapf = new Grapf(i, j, weights, true);
-
-        grapf.add(5,0,1);
+        Grapf grapf = new Grapf(from, to, weights, true);
 
         String theKruskal = GrapfUtils.theKruskal(grapf);
         System.out.println(theKruskal);

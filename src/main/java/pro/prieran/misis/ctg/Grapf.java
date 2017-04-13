@@ -33,9 +33,26 @@ public class Grapf {
     }
 
     public void add(int from, int to, int weight) {
+
+        if (from >= head.length) {
+            head = newArray(head, from + 1, NOTHING);
+        }
+
+        if (to >= head.length) {
+            head = newArray(head, to + 1, NOTHING);
+        }
+
         for (int k = head[from]; k != -1; k = nextEdge[k]) {
             if (toArray[k] == to) {
                 return;
+            }
+        }
+
+        if (isBiDirectional) {
+            for (int k = head[to]; k != -1; k = nextEdge[k]) {
+                if (toArray[k] == from) {
+                    return;
+                }
             }
         }
 

@@ -2,6 +2,12 @@ package pro.prieran.misis.ctg;
 
 public class GrapfUtils {
 
+    public static String theBFS(Grapf grapf) {
+
+
+        return null;
+    }
+
     public static String theKruskal(Grapf grapf) {
         if (!grapf.isBiDirectional) {
             throw new IllegalStateException("Graph is not bidirectional");
@@ -17,8 +23,8 @@ public class GrapfUtils {
 
         ArrayUtils.sortArraysLikeFirst(weights, fromArray, toArray);
 
-        final DSU dsu = new DSU(fromArray.length);
-        final int[] sTree = new int[42];
+        final DSU dsu = new DSU(grapf.countOfEdges);
+        final int[] sTree = new int[grapf.countOfEdges];
         int w = 0;
 
         for (int k = 0; k < grapf.countOfEdges && w < grapf.countOfNodes - 1; k++) {
@@ -39,6 +45,7 @@ public class GrapfUtils {
 
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
+        addGraphvizStyle(graph);
         for (int q = 0; q < grapf.head.length; q++) {
             for (int k = grapf.head[q]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
                 int begin = fromArray[k];
@@ -79,7 +86,7 @@ public class GrapfUtils {
         StringBuilder graph = new StringBuilder();
 
         graph.append("digraph {\n");
-
+        addGraphvizStyle(graph);
         for (int q = 0; q < grapf.head.length; q++) {
             for (int k = grapf.head[q]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
                 int begin = grapf.fromArray[k];
@@ -119,5 +126,9 @@ public class GrapfUtils {
         graph.append("\t}");
 
         return graph.toString();
+    }
+
+    private static void addGraphvizStyle(StringBuilder graph) {
+        graph.append("\trankdir=\"LR\"\n");
     }
 }
