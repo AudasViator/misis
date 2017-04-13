@@ -21,12 +21,13 @@ public class Main {
         int[] j =       {1, 3, 3, 5, 5, 4, 4, 2, 1, 0};
         int[] weights = {1, 1, 1, 2, 9, 1, 8, 1, 4, 1};
 
-        Grapf grapf = new Grapf(i, j, weights);
+        Grapf grapf = new Grapf(i, j, weights, true);
 
         String graph = grapf.makeGraphvizString();
         System.out.println(graph);
         String theKruskal = grapf.theKruskal();
-        System.out.println(theKruskal);
+//        System.out.println(theKruskal);
+//        writeAndRunGraph(graph);
         writeAndRunGraph(theKruskal);
     }
 
@@ -67,6 +68,6 @@ public class Main {
 
         reader.close();
 
-        return new Grapf(i, j, null);
+        return new Grapf(i, j, null, false);
     }
 }

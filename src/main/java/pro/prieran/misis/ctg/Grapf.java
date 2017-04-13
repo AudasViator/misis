@@ -8,21 +8,24 @@ import static pro.prieran.misis.ctg.ArrayUtils.newArray;
 public class Grapf {
     private static final int NOTHING = -1;
 
+    private final boolean isBiDirectional;
+
     private int[] fromArray; // Ребро откуда
+
     private int[] toArray;   // Ребро куда
 
     private int[] weights;   // Единственное логичное название
-
     private int[] head;      // Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
     private int[] nextEdge;  // Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
 
     private int countOfEdges;
 
-    public Grapf(int[] fromArray, int[] toArray, @Nullable int[] weights) {
+    public Grapf(int[] fromArray, int[] toArray, @Nullable int[] weights, boolean isBiDirectional) {
         this.fromArray = fromArray;
         this.toArray = toArray;
         this.weights = weights;
         countOfEdges = fromArray.length;
+        this.isBiDirectional = isBiDirectional;
 
         update();
     }
@@ -39,12 +42,16 @@ public class Grapf {
             fromArray = newArray(fromArray, fromArray.length * 2, NOTHING);
             toArray = newArray(toArray, toArray.length * 2, NOTHING);
             nextEdge = newArray(nextEdge, nextEdge.length * 2, NOTHING);
-            weights = newArray(weights, weights.length * 2, NOTHING);
+            if (weights != null) {
+                weights = newArray(weights, weights.length * 2, NOTHING);
+            }
         }
 
         fromArray[countOfEdges] = from;
         toArray[countOfEdges] = to;
-        weights[countOfEdges] = weight;
+        if (weights != null) {
+            weights[countOfEdges] = weight;
+        }
 
         addInternal(countOfEdges);
 
@@ -57,7 +64,9 @@ public class Grapf {
             if (toArray[k] == to) {
                 fromArray[k] = NOTHING;
                 toArray[k] = NOTHING;
-                weights[k] = NOTHING;
+                if (weights != null) {
+                    weights[k] = NOTHING;
+                }
                 break;
             }
         }
@@ -85,7 +94,6 @@ public class Grapf {
             for (int k = head[q]; k != NOTHING; k = nextEdge[k]) {
                 int begin = fromArray[k];
                 int end = toArray[k];
-                int weight = weights[k];
 
                 if (begin != NOTHING && end != NOTHING) {
                     graph.append("\t\t");
@@ -94,14 +102,26 @@ public class Grapf {
                     graph.append(" -> ");
                     graph.append(Integer.toString(end));
 
-                    graph
-                            .append("[label=\"")
-                            .append(weight)
-                            .append("\",weight=\"")
-                            .append(weight)
-                            .append("\"]");
+                    graph.append(" [");
 
-                    graph.append(";\n");
+                    if (isBiDirectional) {
+                        graph.append("dir=both");
+                    }
+
+                    if (weights != null) {
+                        if (isBiDirectional) {
+                            graph.append(", ");
+                        }
+                        int weight = weights[k];
+                        graph
+                                .append("label=\"")
+                                .append(weight)
+                                .append("\", weight=\"")
+                                .append(weight)
+                                .append("\"");
+                    }
+
+                    graph.append("];\n");
                 }
             }
         }
@@ -151,10 +171,13 @@ public class Grapf {
 
     private int[] kk = new int[42];
 
-    // FIXME: Граф как бы неориентированный
     public String theKruskal() {
-        for (int i = 0; i < kk.length; i++) {
-            kk[i] = NOTHING;
+        if (!isBiDirectional) {
+            throw new IllegalStateException("Graph is not bidirectional");
+        }
+
+        if (weights == null) {
+            throw new IllegalStateException("Weights is null");
         }
 
         ArrayUtils.sortArraysLikeFirst(weights, fromArray, toArray);
@@ -164,7 +187,7 @@ public class Grapf {
         // TODO
         // TODO
         // TODO, TODO, TODO, TO-DOOOO
-        for (int k = 0; k < getCountOfNodes() && w < fromArray.length - 1; k++) {
+        for (int k = 0; k < fromArray.length && w < getCountOfNodes() - 1; k++) {
             int i = fromArray[k];
             int j = toArray[k];
 
@@ -181,11 +204,11 @@ public class Grapf {
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
 
-        for (int i = 0; i < 6; i++) { // TODO: что-нибудь хранить
+        for (int i = 0; i < w; i++) { // TODO: что-нибудь хранить
             if (kk[i] != NOTHING) {
-                int begin = fromArray[i];
-                int end = toArray[i];
-                int weight = weights[i];
+                int begin = fromArray[kk[i]];
+                int end = toArray[kk[i]];
+                int weight = weights[kk[i]];
 
                 graph.append("\t\t");
 
@@ -210,11 +233,12 @@ public class Grapf {
     }
 
     private static class DSU {
-        private int[] parents;// = new int[42]; // TODO: Dynamic
-        private int[] rank = new int[42];
+        private int[] parents;
+        private int[] rank;
 
         public DSU(int[] parents) {
             this.parents = parents;
+            this.rank = new int[parents.length];
             for (int i = 0; i < parents.length; i++) {
                 makeSet(i);
             }
