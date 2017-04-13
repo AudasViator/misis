@@ -86,4 +86,13 @@ public class ArrayUtils {
             array[second] = temp;
         }
     }
+
+    public static boolean contains(int[] array, int element) {
+        for (int i : array) {
+            if (i == element) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

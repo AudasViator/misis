@@ -178,6 +178,10 @@ public class Grapf {
             throw new IllegalStateException("Weights is null");
         }
 
+        final int[] fromArray = ArrayUtils.newArray(this.fromArray, this.fromArray.length, NOTHING);
+        final int[] toArray = ArrayUtils.newArray(this.toArray, this.toArray.length, NOTHING);
+        final int[] weights = ArrayUtils.newArray(this.weights, this.weights.length, NOTHING);
+
         ArrayUtils.sortArraysLikeFirst(weights, fromArray, toArray);
 
         final DSU dsu = new DSU(fromArray.length);
@@ -198,76 +202,43 @@ public class Grapf {
             }
         }
 
+        // Print it
+
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
+        for (int q = 0; q < head.length; q++) {
+            for (int k = head[q]; k != NOTHING; k = nextEdge[k]) {
+                int begin = fromArray[k];
+                int end = toArray[k];
+                int weight = weights[k];
 
-        for (int i = 0; i < w; i++) {
-            int begin = fromArray[sTree[i]];
-            int end = toArray[sTree[i]];
-            int weight = weights[sTree[i]];
+                if (begin != NOTHING && end != NOTHING) {
+                    graph.append("\t\t");
 
-            graph.append("\t\t");
+                    graph.append(Integer.toString(begin));
+                    graph.append(" -> ");
+                    graph.append(Integer.toString(end));
 
-            graph.append(Integer.toString(begin));
-            graph.append(" -> ");
-            graph.append(Integer.toString(end));
+                    graph.append(" [dir=both, ");
 
-            graph
-                    .append("[label=\"")
-                    .append(weight)
-                    .append("\",weight=\"")
-                    .append(weight)
-                    .append("\"]");
+                    graph
+                            .append("label=\"")
+                            .append(weight)
+                            .append("\", weight=\"")
+                            .append(weight)
+                            .append("\"");
 
-            graph.append(";\n");
+                    if (ArrayUtils.contains(sTree, k)) {
+                        graph.append(", color = red, ");
+                    }
+
+                    graph.append("];\n");
+                }
+            }
         }
 
         graph.append("\t}");
 
         return graph.toString();
-    }
-
-    private static class DSU {
-        private int[] parents;
-        private int[] rank;
-
-        public DSU(int size) {
-            this.parents = new int[size];
-            this.rank = new int[size];
-            for (int i = 0; i < parents.length; i++) {
-                makeSet(i);
-            }
-        }
-
-        private void makeSet(int value) {
-            parents[value] = value;
-            rank[value] = 0;
-        }
-
-        private int findSet(int value) {
-            if (value == parents[value]) {
-                return value;
-            } else {
-                return parents[value] = findSet(parents[value]); // Чёт я думал, что так нельзя
-            }
-        }
-
-        private void unionSets(int first, int second) {
-            first = findSet(first);
-            second = findSet(second);
-            if (first != second) {
-                if (rank[first] < rank[second]) {
-                    parents[first] = second;
-                    if (rank[first] == rank[second]) {
-                        rank[second]++;
-                    }
-                } else {
-                    parents[second] = first;
-                    if (rank[first] == rank[second]) {
-                        rank[first]++;
-                    }
-                }
-            }
-        }
     }
 }

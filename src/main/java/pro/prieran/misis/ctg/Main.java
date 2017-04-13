@@ -23,11 +23,8 @@ public class Main {
 
         Grapf grapf = new Grapf(i, j, weights, true);
 
-        String graph = grapf.makeGraphvizString();
-        System.out.println(graph);
         String theKruskal = grapf.theKruskal();
-//        System.out.println(theKruskal);
-//        writeAndRunGraph(graph);
+        System.out.println(theKruskal);
         writeAndRunGraph(theKruskal);
     }
 
