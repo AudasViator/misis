@@ -23,7 +23,9 @@ public class Main {
 
         Grapf grapf = new Grapf(i, j, weights, true);
 
-        String theKruskal = grapf.theKruskal();
+        grapf.add(5,0,1);
+
+        String theKruskal = GrapfUtils.theKruskal(grapf);
         System.out.println(theKruskal);
         writeAndRunGraph(theKruskal);
     }

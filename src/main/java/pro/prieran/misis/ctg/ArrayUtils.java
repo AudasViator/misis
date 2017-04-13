@@ -13,7 +13,11 @@ public class ArrayUtils {
             newArray[i] = defaultValue;
         }
         if (oldArray != null) {
-            System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
+            if (newArray.length < oldArray.length) {
+                System.arraycopy(oldArray, 0, newArray, 0, newArray.length);
+            } else {
+                System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
+            }
         }
         return newArray;
     }
