@@ -7,27 +7,24 @@ public class GrapfUtils {
 
     public static String theBFS(Grapf grapf, int fromNode) {
         final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
-        final int[] parents = new int[grapf.countOfNodes]; // Откуда пришли в i-ую вершину (хранится номер дуги)
-        for (int i = 0; i < parents.length; i++) {
-            parents[i] = UNREACH;
-        }
+        final int[] parents = ArrayUtils.newArray(null, grapf.countOfNodes, UNREACH); // Откуда пришли в i-ую вершину (хранится номер дуги)
 
         final int[] queue = new int[grapf.countOfEdges];
         queue[0] = fromNode;
 
-        int firstIndx = 0; // First element in queue
-        int firstEmptyIndx = 1; // First empty space in queue
+        int firstIndex = 0; // First element in queue
+        int firstEmptyIndex = 1; // First empty space in queue
 
-        while (firstIndx < firstEmptyIndx) {
-            int from = queue[firstIndx];
-            firstIndx++;
+        while (firstIndex < firstEmptyIndex) {
+            int from = queue[firstIndex];
+            firstIndex++;
             for (int k = grapf.head[from]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
                 int to = grapf.toArray[k];
                 if (lengths[to] == 0) {
                     lengths[to] = lengths[from] + grapf.weights[k];
                     parents[to] = k;
-                    queue[firstEmptyIndx] = to;
-                    firstEmptyIndx++;
+                    queue[firstEmptyIndex] = to;
+                    firstEmptyIndex++;
                 }
             }
         }
@@ -39,42 +36,60 @@ public class GrapfUtils {
             }
         }
 
+        /*
+            1. Если иду из четвёртой в восьмую
+		        a. Известно расстояние из 4 до 8 (пусть оно равно 100)
+		        b. Известно, по каким рёбрам я шёл
+		        c. Известны веса этих рёбер
+	        2. Цель:
+		        a. Найти самое большое расстояние от четвёртой вершины до некой наиболее отдалённой
+		        b. Идя из четвёртого ребра в ширину, раскрашивать каждое ребро пропорционально:
+			            i. (расстояние от четвёртого ребра до текущей вершины)/(самое большое расстояние)
+	        3. Алгоритм:
+		        a. Идём по from/toArray, имеем номер ребра
+		        b. Проверяем, что мы идём из той вершины (точнее по тому ребру), из которой надо идти
+		        c. По куда ребро ищем расстояние до исходной вершины
+		        d. По номеру ребра ищем вес ребра
+		            Градиента не будет
+		        e. Градиент в начале пропорционален (расстояние до исходной - вес ребра)/(максимальное расстояние)
+		        f. Градиент в конце пропорционален (расстояние до исходной)/(максимальное расстояние)
+		        g. Color will be in HSV format = "0.833 1.000 0.500" - purple color; We need to change S from 1 to 0
+
+         */
+
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
         addGraphvizStyle(graph);
-        for (int q = 0; q < grapf.head.length; q++) {
-            for (int k = grapf.head[q]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
-                int from = grapf.fromArray[k];
-                int to = grapf.toArray[k];
+        for (int k = 0; k < grapf.fromArray.length; k++) {
+            int from = grapf.fromArray[k];
+            int to = grapf.toArray[k];
 
-                if (from != Grapf.NOTHING && to != Grapf.NOTHING) {
-                    graph.append("\t\t");
+            if (from != Grapf.NOTHING && to != Grapf.NOTHING && parents[to] == k) {
+                graph.append("\t\t");
 
-                    graph.append(Integer.toString(from));
-                    graph.append(" -> ");
-                    graph.append(Integer.toString(to));
+                graph.append(Integer.toString(from));
+                graph.append(" -> ");
+                graph.append(Integer.toString(to));
 
-                    graph.append(" [");
+                graph.append(" [");
 
-                    graph
-                            .append("label=\"")
-                            .append(lengths[from])
-                            .append("\", weight=\"")
-                            .append(grapf.weights[k])
-                            .append("\"");
+                graph
+                        .append("label=\"")
+                        .append(lengths[to])
+                        .append("\", weight=\"")
+                        .append(grapf.weights[k])
+                        .append("\"");
 
-                    float saturationF = 1 - (float) lengths[from] / (maxLength * 1.2f);
-                    String saturation = String.format(Locale.ENGLISH, "%.3f", saturationF);
+                float saturationF = 1 - (float) lengths[to] / (maxLength * 1.2f);
+                String saturation = String.format(Locale.ENGLISH, "%.3f", saturationF);
 
-                    graph.append(", color = \"0.000  ");
-                    graph.append(saturation);
-                    graph.append("  ");
-                    graph.append("1.000");
-                    graph.append("\"");
+                graph.append(", color = \"0.833  ");
+                graph.append(saturation);
+                graph.append("  ");
+                graph.append("1.000");
+                graph.append("\"");
 
-
-                    graph.append("];\n");
-                }
+                graph.append("];\n");
             }
         }
 
