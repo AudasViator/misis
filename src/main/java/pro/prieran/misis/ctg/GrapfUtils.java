@@ -64,7 +64,7 @@ public class GrapfUtils {
             int from = grapf.fromArray[k];
             int to = grapf.toArray[k];
 
-            if (from != Grapf.NOTHING && to != Grapf.NOTHING && parents[to] == k) {
+            if (from != Grapf.NOTHING && to != Grapf.NOTHING) {
                 graph.append("\t\t");
 
                 graph.append(Integer.toString(from));
@@ -73,21 +73,25 @@ public class GrapfUtils {
 
                 graph.append(" [");
 
-                graph
-                        .append("label=\"")
-                        .append(lengths[to])
-                        .append("\", weight=\"")
-                        .append(grapf.weights[k])
-                        .append("\"");
+                if (parents[to] == k) {
+                    graph
+                            .append("label=\"")
+                            .append(lengths[to])
+                            .append("\", weight=\"")
+                            .append(grapf.weights[k])
+                            .append("\"");
 
-                float saturationF = 1 - (float) lengths[to] / (maxLength * 1.2f);
-                String saturation = String.format(Locale.ENGLISH, "%.3f", saturationF);
+                    float saturationF = 1 - (float) lengths[to] / (maxLength * 1.2f);
+                    String saturation = String.format(Locale.ENGLISH, "%.3f", saturationF);
 
-                graph.append(", color = \"0.833  ");
-                graph.append(saturation);
-                graph.append("  ");
-                graph.append("1.000");
-                graph.append("\"");
+                    graph.append(", color = \"0.833  ");
+                    graph.append(saturation);
+                    graph.append("  ");
+                    graph.append("1.000");
+                    graph.append("\"");
+                } else {
+                    graph.append("color = gray");
+                }
 
                 graph.append("];\n");
             }
