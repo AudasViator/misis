@@ -11,16 +11,16 @@ public class Grapf {
     // Обойдёмся без геттеров
     public final boolean isBiDirectional;
 
-    public int[] fromArray;  // Ребро откуда
+    public int[] fromArray;  // n, Ребро откуда
 
-    public int[] toArray;    // Ребро куда
+    public int[] toArray;    // n, Ребро куда
 
-    public int[] weights;    // Единственное логичное название
-    public int[] head;       // Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
-    public int[] nextEdge;   // Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
+    public int[] weights;    // n, Единственное логичное название
+    public int[] head;       // n, Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
+    public int[] nextEdge;   // m, Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
 
-    public int countOfEdges; // Рёбра/дуги/палки
-    public int countOfNodes; // Вершины (кружочки с цифрами)
+    public int countOfEdges; // m, Рёбра/дуги/палки
+    public int countOfNodes; // n, Вершины (кружочки с цифрами)
 
     public Grapf(int[] fromArray, int[] toArray, @Nullable int[] weights, boolean isBiDirectional) {
         this.fromArray = fromArray;
