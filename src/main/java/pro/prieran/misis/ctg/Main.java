@@ -12,7 +12,6 @@ import java.nio.file.StandardOpenOption;
 
 public class Main {
 
-    // TODO: Краскала с непересекающимися множествами (сжатием путей); поиск в ширину от данной вершины, выводит список дуг
     // TODO: Поиск в глубину
     // TODO: Дейкстры
     public static void main(String[] args) throws IOException {

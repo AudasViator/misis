@@ -60,6 +60,26 @@ public class GrapfUtils {
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
         addGraphvizStyle(graph);
+
+        graph.append("\tnode [color=gray, fontcolor=gray]\n");
+
+        for (int k = 0; k < grapf.countOfNodes; k++) {
+            if (parents[k] != UNREACH || fromNode == k) {
+                graph.append("\t\t ").append(k).append(" [color=\"");
+                if (fromNode != k) {
+                    String color = makeHSV(lengths, k, maxLength);
+                    graph.append(color);
+                    graph.append("\", fontcolor=\"");
+                    graph.append(color);
+                    graph.append("\"]\n");
+                } else {
+                    graph.append("black\", shape=star, fontcolor=black]\n");
+                }
+            }
+        }
+
+        graph.append("\n");
+
         for (int k = 0; k < grapf.fromArray.length; k++) {
             int from = grapf.fromArray[k];
             int to = grapf.toArray[k];
@@ -81,16 +101,22 @@ public class GrapfUtils {
                             .append(grapf.weights[k])
                             .append("\"");
 
-                    float saturationF = 1 - (float) lengths[to] / (maxLength * 1.2f);
-                    String saturation = String.format(Locale.ENGLISH, "%.3f", saturationF);
+                    graph.append(", color = \"");
+                    graph.append(makeHSV(lengths, to, maxLength));
+                    graph.append("\"");
 
-                    graph.append(", color = \"0.833  ");
-                    graph.append(saturation);
-                    graph.append("  ");
-                    graph.append("1.000");
+                    graph.append(", fontcolor = \"");
+                    graph.append(makeHSV(lengths, to, maxLength));
                     graph.append("\"");
                 } else {
-                    graph.append("color = gray");
+                    graph
+                            .append("label=\"")
+                            .append("+")
+                            .append(grapf.weights[k])
+                            .append("\", weight=\"")
+                            .append(grapf.weights[k])
+                            .append("\"");
+                    graph.append(", color = gray, fontcolor = gray");
                 }
 
                 graph.append("];\n");
@@ -224,5 +250,18 @@ public class GrapfUtils {
 
     private static void addGraphvizStyle(StringBuilder graph) {
         graph.append("\trankdir=\"LR\"\n");
+    }
+
+    private static String makeHSV(int[] lengths, int to, int maxLength) {
+        StringBuilder color = new StringBuilder();
+        float saturationF = 1 - (float) lengths[to] / (maxLength * 1.1f);
+        String saturation = String.format(Locale.ENGLISH, "%.3f", saturationF);
+
+        color.append("0.666  ");
+        color.append(saturation);
+        color.append("  ");
+        color.append("1.000");
+
+        return color.toString();
     }
 }
