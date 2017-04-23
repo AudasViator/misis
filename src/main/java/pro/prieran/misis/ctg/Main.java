@@ -12,8 +12,6 @@ import java.nio.file.StandardOpenOption;
 
 public class Main {
 
-    // TODO: Поиск в глубину
-    // TODO: Дейкстры
     public static void main(String[] args) throws IOException {
 
         final int[] from = {0, 21, 15, 7, 6, 13, 28, 4, 28, 4, 20, 19, 1, 5, 22, 4, 22, 22, 16, 16, 19, 24, 0, 12, 10, 26, 21, 3, 13, 3};
@@ -41,32 +39,15 @@ public class Main {
 //        System.out.println(theDijkstra);
 //        writeAndRunGraph(theDijkstra);
 
-        Grapf grapf = new Grapf(from, to, weights, true);
-        String theDFS = GrapfUtils.theDFS(grapf);
-        System.out.println(theDFS);
-        writeAndRunGraph(theDFS);
+        Grapf grapf = new Grapf(from, to, null, false);
+        String theBFS = GrapfUtils.theBFS(grapf, 4);
+        System.out.println(theBFS);
+        writeAndRunGraph(theBFS);
 
-//        theKR();
-    }
-
-    private static void theKR() throws IOException {
-//        final int[] from = {1, 2, 4, 3, 0, 2, 2, 1, 2, 4, 3, 0, 1, 0, 3, 4};
-//        final int[] to = {2, 4, 3, 0, 1, 0, 3, 4, 1, 2, 4, 3, 0, 2, 2, 1};
-//        final int[] weights = {1, 1, 1, 1, 1, 8, 8, 8, 1, 1, 1, 1, 1, 8, 8, 8};
-
-//        final int[] from =    {0,1,2,3,0,1,2,3,1,2,3,0,4,4,4,4};
-//        final int[] to =      {1,2,3,0,4,4,4,4,0,1,2,3,0,1,2,3};
-//        final int[] weights = {1,1,1,1,5,5,5,5,1,1,1,1,5,5,5,5};
-
-        final int[] from = {4, 5, 0, 1, 2, 3, 5, 0, 1, 2, 3, 0};
-        final int[] to = {5, 0, 1, 2, 3, 0, 4, 5, 0, 1, 2, 3};
-        final int[] weights = {8, 8, 8, 8, 8, 1, 8, 8, 8, 8, 8, 1};
-
-        Grapf grapf = new Grapf(from, to, weights, false);
-
-        String theKR = GrapfUtils.theKR(grapf);
-        System.out.println(theKR);
-        writeAndRunGraph(theKR);
+//        Grapf grapf = new Grapf(from, to, weights, true);
+//        String theDFS = GrapfUtils.theDFS(grapf);
+//        System.out.println(theDFS);
+//        writeAndRunGraph(theDFS);
     }
 
     private static void writeAndRunGraph(String graph) throws IOException {
@@ -109,3 +90,15 @@ public class Main {
         return new Grapf(i, j, null, false);
     }
 }
+
+//        final int[] from = {1, 2, 4, 3, 0, 2, 2, 1, 2, 4, 3, 0, 1, 0, 3, 4};
+//        final int[] to = {2, 4, 3, 0, 1, 0, 3, 4, 1, 2, 4, 3, 0, 2, 2, 1};
+//        final int[] weights = {1, 1, 1, 1, 1, 8, 8, 8, 1, 1, 1, 1, 1, 8, 8, 8};
+
+//        final int[] from =    {0,1,2,3,0,1,2,3,1,2,3,0,4,4,4,4};
+//        final int[] to =      {1,2,3,0,4,4,4,4,0,1,2,3,0,1,2,3};
+//        final int[] weights = {1,1,1,1,5,5,5,5,1,1,1,1,5,5,5,5};
+
+//        final int[] from = {4, 5, 0, 1, 2, 3, 5, 0, 1, 2, 3, 0};
+//        final int[] to = {5, 0, 1, 2, 3, 0, 4, 5, 0, 1, 2, 3};
+//        final int[] weights = {8, 8, 8, 8, 8, 1, 8, 8, 8, 8, 8, 1};

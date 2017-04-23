@@ -206,7 +206,7 @@ public class GrapfUtils {
             for (int k = grapf.head[from]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
                 int to = grapf.toArray[k];
                 if (lengths[to] == 0) {
-                    lengths[to] = lengths[from] + grapf.weights[k];
+                    lengths[to] = lengths[from] + 1;
                     parents[to] = k;
                     queue[firstEmptyIndex] = to;
                     firstEmptyIndex++;
@@ -221,59 +221,6 @@ public class GrapfUtils {
             }
         }
 
-        return null;
-    }
-
-    public static String theKR(Grapf grapf) {
-        int[] smallestLengths = null;
-        int[] smallestParents = null;
-        int smallestFullLength = Integer.MAX_VALUE;
-        int smallestNode = -1;
-
-        for (int q = 0; q < grapf.countOfNodes; q++) {
-            final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
-            final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACHABLE); // Откуда пришли в i-ую вершину (хранится номер дуги)
-
-            final int[] queue = new int[grapf.countOfEdges];
-            queue[0] = q;
-
-            int firstIndex = 0; // First element in queue
-            int firstEmptyIndex = 1; // First empty space in queue
-
-            while (firstIndex < firstEmptyIndex) {
-                int from = queue[firstIndex];
-                firstIndex++;
-                for (int k = grapf.head[from]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
-                    int to = grapf.toArray[k];
-                    if (lengths[to] == 0) {
-                        lengths[to] = lengths[from] + grapf.weights[k];
-                        parents[to] = k;
-                        queue[firstEmptyIndex] = to;
-                        firstEmptyIndex++;
-                    }
-                }
-            }
-
-            int theFullLength = 0;
-            for (int length : lengths) {
-                theFullLength += length;
-            }
-
-            int maxLength = 0;
-            for (int length : lengths) {
-                if (length > maxLength) {
-                    maxLength = length;
-                }
-            }
-
-            if (theFullLength < smallestFullLength) {
-                smallestLengths = lengths;
-                smallestParents = parents;
-                smallestFullLength = theFullLength;
-                smallestNode = q;
-            }
-        }
-
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
         addGraphvizStyle(graph);
@@ -281,15 +228,14 @@ public class GrapfUtils {
         graph.append("\tnode [color=gray, fontcolor=gray]\n");
 
         for (int k = 0; k < grapf.countOfNodes; k++) {
-            if (smallestParents[k] != UNREACHABLE || smallestNode == k) {
+            if (parents[k] != UNREACHABLE || fromNode == k) {
                 graph.append("\t\t ").append(k).append(" [color=\"");
-                if (smallestNode != k) {
-                    graph.append("black\", fontcolor=black]\n");
-//                    String color = makeHSV(smallestLengths, k, smallestMaxLength);
-//                    graph.append(color);
-//                    graph.append("\", fontcolor=\"");
-//                    graph.append(color);
-//                    graph.append("\"]\n");
+                if (fromNode != k) {
+                    String color = makeHSV(lengths, k, maxLength);
+                    graph.append(color);
+                    graph.append("\", fontcolor=\"");
+                    graph.append(color);
+                    graph.append("\"]\n");
                 } else {
                     graph.append("black\", shape=star, fontcolor=black]\n");
                 }
@@ -311,31 +257,23 @@ public class GrapfUtils {
 
                 graph.append(" [");
 
-                if (smallestParents[to] == k) {
+                if (parents[to] == k) {
                     graph
                             .append("label=\"")
-//                            .append(smallestLengths[to])
-                            .append(grapf.weights[k])
+                            .append(lengths[to])
                             .append("\", weight=\"")
-                            .append(grapf.weights[k])
+                            .append(lengths[to])
                             .append("\"");
 
-//                    graph.append(", color = \"");
-//                    graph.append(makeHSV(smallestLengths, to, smallestMaxLength));
-//                    graph.append("\"");
+                    graph.append(", color = \"");
+                    graph.append(makeHSV(lengths, to, maxLength));
+                    graph.append("\"");
 
-//                    graph.append(", fontcolor = \"");
-//                    graph.append(makeHSV(smallestLengths, to, smallestMaxLength));
-//                    graph.append("\"");
+                    graph.append(", fontcolor = \"");
+                    graph.append(makeHSV(lengths, to, maxLength));
+                    graph.append("\"");
                 } else {
-                    graph
-                            .append("label=\"")
-//                            .append("+")
-                            .append(grapf.weights[k])
-                            .append("\", weight=\"")
-                            .append(grapf.weights[k])
-                            .append("\"");
-                    graph.append(", color = gray, fontcolor = gray");
+                    graph.append("color = gray, fontcolor = gray");
                 }
 
                 graph.append("];\n");
