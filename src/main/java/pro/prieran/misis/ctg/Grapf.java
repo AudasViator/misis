@@ -23,17 +23,39 @@ public class Grapf {
     public int countOfNodes; // n, Вершины (кружочки с цифрами)
 
     public Grapf(int[] fromArray, int[] toArray, @Nullable int[] weights, boolean isBiDirectional) {
-        this.fromArray = fromArray;
-        this.toArray = toArray;
-        this.weights = weights;
-        countOfEdges = fromArray.length;
         this.isBiDirectional = isBiDirectional;
 
+        if (!isBiDirectional) {
+            this.fromArray = fromArray;
+            this.toArray = toArray;
+            this.weights = weights;
+        } else {
+            this.fromArray = ArrayUtils.newArray(fromArray, fromArray.length * 2, NOTHING);
+            this.toArray = ArrayUtils.newArray(toArray, toArray.length * 2, NOTHING);
+
+            System.arraycopy(fromArray, 0, this.toArray, toArray.length, fromArray.length);
+            System.arraycopy(toArray, 0, this.fromArray, fromArray.length, toArray.length);
+
+            if (weights != null) {
+                this.weights = ArrayUtils.newArray(weights, weights.length * 2, NOTHING);
+                System.arraycopy(weights, 0, this.weights, weights.length, weights.length);
+            } else {
+                this.weights = null;
+            }
+        }
+
+        countOfEdges = this.fromArray.length;
         update();
     }
 
     public void add(int from, int to, int weight) {
+        addInner(from, to, weight);
+        if (isBiDirectional) {
+            addInner(to, to, weight);
+        }
+    }
 
+    private void addInner(int from, int to, int weight) {
         if (from >= head.length) {
             head = newArray(head, from + 1, NOTHING);
         }
@@ -45,14 +67,6 @@ public class Grapf {
         for (int k = head[from]; k != -1; k = nextEdge[k]) {
             if (toArray[k] == to) {
                 return;
-            }
-        }
-
-        if (isBiDirectional) {
-            for (int k = head[to]; k != -1; k = nextEdge[k]) {
-                if (toArray[k] == from) {
-                    return;
-                }
             }
         }
 

@@ -20,23 +20,31 @@ public class Main {
         final int[] to = {1, 7, 6, 18, 11, 22, 16, 22, 8, 9, 21, 10, 18, 19, 15, 0, 10, 0, 3, 20, 8, 9, 5, 22, 16, 20, 15, 12, 24, 28};
         final int[] weights = {1, 16, 12, 1, 7, 14, 2, 18, 15, 10, 3, 19, 5, 8, 12, 4, 8, 12, 17, 9, 16, 19, 1, 5, 9, 1, 6, 7, 15, 17};
 
-        Grapf grapf = new Grapf(from, to, weights, false);
 
+//        Grapf grapf = new Grapf(from, to, weights, false);
 //        String theGraph = GrapfUtils.makeGraphvizString(grapf);
 //        System.out.println(theGraph);
 //        writeAndRunGraph(theGraph);
 
-//        String theKruskal = GrapfUtils.theKruskal(grapf); // Don't forget to make graph bidirectional
+//        Grapf grapf = new Grapf(from, to, weights, true);
+//        String theKruskal = GrapfUtils.theKruskal(grapf);
 //        System.out.println(theKruskal);
 //        writeAndRunGraph(theKruskal);
 
+//        Grapf grapf = new Grapf(from, to, weights, false);
 //        String theBellmanFord = GrapfUtils.theBellmanFord(grapf, 4);
 //        System.out.println(theBellmanFord);
 //        writeAndRunGraph(theBellmanFord);
 
-        String theDijkstra = GrapfUtils.theDijkstra(grapf, 4);
-        System.out.println(theDijkstra);
-        writeAndRunGraph(theDijkstra);
+//        Grapf grapf = new Grapf(from, to, weights, false);
+//        String theDijkstra = GrapfUtils.theDijkstra(grapf, 4);
+//        System.out.println(theDijkstra);
+//        writeAndRunGraph(theDijkstra);
+
+        Grapf grapf = new Grapf(from, to, weights, true);
+        String theDFS = GrapfUtils.theDFS(grapf);
+        System.out.println(theDFS);
+        writeAndRunGraph(theDFS);
 
 //        theKR();
     }
