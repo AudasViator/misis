@@ -11,12 +11,97 @@ public class GrapfUtils {
     private static final int OUTSIDE = -2;
     private static final int LAST_NODE = -1;
 
+    private static final int EMPTY_COMPONENT = -1;
+
     public static String theDFS(Grapf grapf) {
         if (!grapf.isBiDirectional) {
             throw new IllegalStateException("Graph is not bidirectional");
         }
 
-        return null;
+        int[] stack = new int[grapf.countOfNodes];
+        int[] numbersOfComponent = ArrayUtils.newArray(grapf.countOfNodes, -1);
+        int[] numbersOfEdge = ArrayUtils.newArray(grapf.head, grapf.head.length, 0);
+
+        int firstEmptyInStack = 0;
+        int numberOfComponent = -1;
+
+        for (int q = 0; q < numbersOfComponent.length; q++) {
+            if (numbersOfComponent[q] != EMPTY_COMPONENT) {
+                continue;
+            }
+
+            numberOfComponent++;
+            int currentNode = q;
+
+            while (true) {
+                numbersOfComponent[currentNode] = numberOfComponent;
+                int k;
+                int to = Grapf.NOTHING;
+                for (k = numbersOfEdge[currentNode]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
+                    to = grapf.toArray[k];
+                    if (numbersOfComponent[to] == EMPTY_COMPONENT) {
+                        break;
+                    }
+                }
+                if (k != Grapf.NOTHING) {
+                    numbersOfEdge[currentNode] = grapf.nextEdge[k];
+                    stack[firstEmptyInStack] = currentNode;
+                    firstEmptyInStack++;
+                    currentNode = to;
+                } else {
+                    if (firstEmptyInStack == 0) {
+                        break;
+                    } else {
+                        firstEmptyInStack--;
+                        currentNode = stack[firstEmptyInStack];
+                    }
+                }
+            }
+        }
+
+        StringBuilder graph = new StringBuilder();
+        graph.append("digraph {\n");
+        addGraphvizStyle(graph);
+
+        graph.append("\tnode [color=gray, fontcolor=gray]\n");
+
+        for (int k = 0; k < grapf.countOfNodes; k++) {
+            graph.append("\t\t ").append(k).append(" [color=\"");
+            String color = "0." + numbersOfComponent[k] + "00  1.000  1.000";
+            graph.append(color);
+            graph.append("\", fontcolor=\"");
+            graph.append(color);
+            graph.append("\"]\n");
+        }
+
+        for (int k = 0; k < grapf.countOfEdges / 2; k++) {
+            int begin = grapf.fromArray[k];
+            int end = grapf.toArray[k];
+            int weight = grapf.weights[k];
+
+            if (begin != Grapf.NOTHING && end != Grapf.NOTHING) {
+                graph.append("\t\t");
+
+                graph.append(Integer.toString(begin));
+                graph.append(" -> ");
+                graph.append(Integer.toString(end));
+
+                graph.append(" [dir=both, ");
+
+                graph
+                        .append("label=\"")
+                        .append(weight)
+                        .append("\", weight=\"")
+                        .append(weight)
+                        .append("\"");
+
+                graph.append("];\n");
+            }
+        }
+
+        graph.append("\t}");
+
+        return graph.toString();
     }
 
     public static String theDijkstra(Grapf grapf, int fromNode) {
