@@ -7,6 +7,14 @@ public class ArrayUtils {
     private ArrayUtils() {
     }
 
+    public static int[] newArray(int newCapacity, int defaultValue) {
+        int[] newArray = new int[newCapacity];
+        for (int i = 0; i < newArray.length; i++) {
+            newArray[i] = defaultValue;
+        }
+        return newArray;
+    }
+
     public static int[] newArray(@Nullable int[] oldArray, int newCapacity, int defaultValue) {
         int[] newArray = new int[newCapacity];
         for (int i = 0; i < newArray.length; i++) {

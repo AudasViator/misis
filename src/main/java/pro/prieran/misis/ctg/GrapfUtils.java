@@ -2,37 +2,64 @@ package pro.prieran.misis.ctg;
 
 import java.util.Locale;
 
+// TODO: Затем Дейкстра, затем выделить двунаправленный граф
 public class GrapfUtils {
+    private static final int INFINITY = Integer.MAX_VALUE;
+
+    private static final int NO_PARENT = -1;
     private static final int UNREACH = -2;
 
-    public static String theBFS(Grapf grapf, int fromNode) {
-        final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
-        final int[] parents = ArrayUtils.newArray(null, grapf.countOfNodes, UNREACH); // Откуда пришли в i-ую вершину (хранится номер дуги)
+    private static final int OUTSIDE = -2;
+    private static final int LAST_NODE = -1;
 
-        final int[] queue = new int[grapf.countOfEdges];
-        queue[0] = fromNode;
+    public static String theDFS(Grapf grapf) {
 
-        int firstIndex = 0; // First element in queue
-        int firstEmptyIndex = 1; // First empty space in queue
 
-        while (firstIndex < firstEmptyIndex) {
-            int from = queue[firstIndex];
-            firstIndex++;
-            for (int k = grapf.head[from]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
-                int to = grapf.toArray[k];
-                if (lengths[to] == 0) {
-                    lengths[to] = lengths[from] + grapf.weights[k];
-                    parents[to] = k;
-                    queue[firstEmptyIndex] = to;
-                    firstEmptyIndex++;
+        return null;
+    }
+
+    public static String theBellmanFord(Grapf grapf, int fromNode) {
+        final int[] lengths = ArrayUtils.newArray(grapf.countOfNodes, INFINITY);
+        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACH);
+        final int[] queue = ArrayUtils.newArray(grapf.countOfNodes, OUTSIDE);
+
+        int headQueue = fromNode;
+        int tallQueue = fromNode;
+        queue[fromNode] = LAST_NODE;
+
+        lengths[fromNode] = 0;
+        parents[fromNode] = NO_PARENT;
+
+        while (headQueue != LAST_NODE) {
+            int i = headQueue;
+            headQueue = queue[headQueue];
+            queue[i] = OUTSIDE;
+
+            for (int k = grapf.head[i]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
+                int toNode = grapf.toArray[k];
+                int toLength = lengths[toNode];
+                if (lengths[i] + grapf.weights[k] < toLength) {
+                    lengths[toNode] = lengths[i] + grapf.weights[k];
+                    parents[toNode] = k;
+
+                    if (queue[toNode] == OUTSIDE) {
+                        if (toLength == INFINITY) {
+                            if (headQueue != LAST_NODE) {
+                                queue[tallQueue] = toNode;
+                            } else {
+                                headQueue = toNode;
+                            }
+                            tallQueue = toNode;
+                            queue[toNode] = LAST_NODE;
+                        } else {
+                            queue[toNode] = headQueue;
+                            if (headQueue == LAST_NODE) {
+                                tallQueue = toNode;
+                                headQueue = toNode;
+                            }
+                        }
+                    }
                 }
-            }
-        }
-
-        int maxLength = 0;
-        for (int length : lengths) {
-            if (length > maxLength) {
-                maxLength = length;
             }
         }
 
@@ -56,6 +83,13 @@ public class GrapfUtils {
 		        g. Color will be in HSV format = "0.833 1.000 0.500" - purple color; We need to change S from 1 to 0
 
          */
+
+        int maxLength = 0;
+        for (int length : lengths) {
+            if (length > maxLength || length != INFINITY) {
+                maxLength = length;
+            }
+        }
 
         StringBuilder graph = new StringBuilder();
         graph.append("digraph {\n");
@@ -101,17 +135,174 @@ public class GrapfUtils {
                             .append(grapf.weights[k])
                             .append("\"");
 
-                    graph.append(", color = \"");
+                    graph.append(", color=\"");
                     graph.append(makeHSV(lengths, to, maxLength));
                     graph.append("\"");
 
-                    graph.append(", fontcolor = \"");
+                    graph.append(", fontcolor=\"");
                     graph.append(makeHSV(lengths, to, maxLength));
                     graph.append("\"");
                 } else {
                     graph
                             .append("label=\"")
                             .append("+")
+                            .append(grapf.weights[k])
+                            .append("\", weight=\"")
+                            .append(grapf.weights[k])
+                            .append("\"");
+                    graph.append(", color = gray, fontcolor = gray");
+                }
+
+                graph.append("];\n");
+            }
+        }
+
+        graph.append("\t}");
+
+        return graph.toString();
+    }
+
+    public static String theBFS(Grapf grapf, int fromNode) {
+        final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
+        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACH); // Откуда пришли в i-ую вершину (хранится номер дуги)
+
+        final int[] queue = new int[grapf.countOfEdges];
+        queue[0] = fromNode;
+
+        int firstIndex = 0; // First element in queue
+        int firstEmptyIndex = 1; // First empty space in queue
+
+        while (firstIndex < firstEmptyIndex) {
+            int from = queue[firstIndex];
+            firstIndex++;
+            for (int k = grapf.head[from]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
+                int to = grapf.toArray[k];
+                if (lengths[to] == 0) {
+                    lengths[to] = lengths[from] + grapf.weights[k];
+                    parents[to] = k;
+                    queue[firstEmptyIndex] = to;
+                    firstEmptyIndex++;
+                }
+            }
+        }
+
+        int maxLength = 0;
+        for (int length : lengths) {
+            if (length > maxLength) {
+                maxLength = length;
+            }
+        }
+
+        return null;
+    }
+
+    public static String theKR(Grapf grapf) {
+        int[] smallestLengths = null;
+        int[] smallestParents = null;
+        int smallestFullLength = Integer.MAX_VALUE;
+        int smallestNode = -1;
+
+        for (int q = 0; q < grapf.countOfNodes; q++) {
+            final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
+            final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACH); // Откуда пришли в i-ую вершину (хранится номер дуги)
+
+            final int[] queue = new int[grapf.countOfEdges];
+            queue[0] = q;
+
+            int firstIndex = 0; // First element in queue
+            int firstEmptyIndex = 1; // First empty space in queue
+
+            while (firstIndex < firstEmptyIndex) {
+                int from = queue[firstIndex];
+                firstIndex++;
+                for (int k = grapf.head[from]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
+                    int to = grapf.toArray[k];
+                    if (lengths[to] == 0) {
+                        lengths[to] = lengths[from] + grapf.weights[k];
+                        parents[to] = k;
+                        queue[firstEmptyIndex] = to;
+                        firstEmptyIndex++;
+                    }
+                }
+            }
+
+            int theFullLength = 0;
+            for (int length : lengths) {
+                theFullLength += length;
+            }
+
+            int maxLength = 0;
+            for (int length : lengths) {
+                if (length > maxLength) {
+                    maxLength = length;
+                }
+            }
+
+            if (theFullLength < smallestFullLength) {
+                smallestLengths = lengths;
+                smallestParents = parents;
+                smallestFullLength = theFullLength;
+                smallestNode = q;
+            }
+        }
+
+        StringBuilder graph = new StringBuilder();
+        graph.append("digraph {\n");
+        addGraphvizStyle(graph);
+
+        graph.append("\tnode [color=gray, fontcolor=gray]\n");
+
+        for (int k = 0; k < grapf.countOfNodes; k++) {
+            if (smallestParents[k] != UNREACH || smallestNode == k) {
+                graph.append("\t\t ").append(k).append(" [color=\"");
+                if (smallestNode != k) {
+                    graph.append("black\", fontcolor=black]\n");
+//                    String color = makeHSV(smallestLengths, k, smallestMaxLength);
+//                    graph.append(color);
+//                    graph.append("\", fontcolor=\"");
+//                    graph.append(color);
+//                    graph.append("\"]\n");
+                } else {
+                    graph.append("black\", shape=star, fontcolor=black]\n");
+                }
+            }
+        }
+
+        graph.append("\n");
+
+        for (int k = 0; k < grapf.fromArray.length; k++) {
+            int from = grapf.fromArray[k];
+            int to = grapf.toArray[k];
+
+            if (from != Grapf.NOTHING && to != Grapf.NOTHING) {
+                graph.append("\t\t");
+
+                graph.append(Integer.toString(from));
+                graph.append(" -> ");
+                graph.append(Integer.toString(to));
+
+                graph.append(" [");
+
+                if (smallestParents[to] == k) {
+                    graph
+                            .append("label=\"")
+//                            .append(smallestLengths[to])
+                            .append(grapf.weights[k])
+                            .append("\", weight=\"")
+                            .append(grapf.weights[k])
+                            .append("\"");
+
+//                    graph.append(", color = \"");
+//                    graph.append(makeHSV(smallestLengths, to, smallestMaxLength));
+//                    graph.append("\"");
+
+//                    graph.append(", fontcolor = \"");
+//                    graph.append(makeHSV(smallestLengths, to, smallestMaxLength));
+//                    graph.append("\"");
+                } else {
+                    graph
+                            .append("label=\"")
+//                            .append("+")
                             .append(grapf.weights[k])
                             .append("\", weight=\"")
                             .append(grapf.weights[k])

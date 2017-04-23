@@ -86,7 +86,7 @@ public class Grapf {
 
     public void delete(int from, int to) {
         int k = head[from];
-        for (; k != -1; k = nextEdge[k]) {
+        for (; k != NOTHING; k = nextEdge[k]) {
             if (toArray[k] == to) {
                 fromArray[k] = NOTHING;
                 toArray[k] = NOTHING;
@@ -113,8 +113,8 @@ public class Grapf {
 
     private void update() {
         updateCountOfNodes();
-        head = newArray(null, countOfNodes, NOTHING);
-        nextEdge = newArray(null, fromArray.length, NOTHING);
+        head = newArray(countOfNodes, NOTHING);
+        nextEdge = newArray(fromArray.length, NOTHING);
 
         for (int k = 0; k < fromArray.length; k++) {
             if (fromArray[k] == NOTHING || toArray[k] == NOTHING) {

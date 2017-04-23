@@ -30,9 +30,31 @@ public class Main {
 //        System.out.println(theKruskal);
 //        writeAndRunGraph(theKruskal);
 
-        String theBFS = GrapfUtils.theBFS(grapf, 4);
-        System.out.println(theBFS);
-        writeAndRunGraph(theBFS);
+        String theBellmanFord = GrapfUtils.theBellmanFord(grapf, 4);
+        System.out.println(theBellmanFord);
+        writeAndRunGraph(theBellmanFord);
+
+//        theKR();
+    }
+
+    private static void theKR() throws IOException {
+//        final int[] from = {1, 2, 4, 3, 0, 2, 2, 1, 2, 4, 3, 0, 1, 0, 3, 4};
+//        final int[] to = {2, 4, 3, 0, 1, 0, 3, 4, 1, 2, 4, 3, 0, 2, 2, 1};
+//        final int[] weights = {1, 1, 1, 1, 1, 8, 8, 8, 1, 1, 1, 1, 1, 8, 8, 8};
+
+//        final int[] from =    {0,1,2,3,0,1,2,3,1,2,3,0,4,4,4,4};
+//        final int[] to =      {1,2,3,0,4,4,4,4,0,1,2,3,0,1,2,3};
+//        final int[] weights = {1,1,1,1,5,5,5,5,1,1,1,1,5,5,5,5};
+
+        final int[] from = {4, 5, 0, 1, 2, 3, 5, 0, 1, 2, 3, 0};
+        final int[] to = {5, 0, 1, 2, 3, 0, 4, 5, 0, 1, 2, 3};
+        final int[] weights = {8, 8, 8, 8, 8, 1, 8, 8, 8, 8, 8, 1};
+
+        Grapf grapf = new Grapf(from, to, weights, false);
+
+        String theKR = GrapfUtils.theKR(grapf);
+        System.out.println(theKR);
+        writeAndRunGraph(theKR);
     }
 
     private static void writeAndRunGraph(String graph) throws IOException {
