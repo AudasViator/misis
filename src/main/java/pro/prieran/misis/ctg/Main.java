@@ -30,9 +30,13 @@ public class Main {
 //        System.out.println(theKruskal);
 //        writeAndRunGraph(theKruskal);
 
-        String theBellmanFord = GrapfUtils.theBellmanFord(grapf, 4);
-        System.out.println(theBellmanFord);
-        writeAndRunGraph(theBellmanFord);
+//        String theBellmanFord = GrapfUtils.theBellmanFord(grapf, 4);
+//        System.out.println(theBellmanFord);
+//        writeAndRunGraph(theBellmanFord);
+
+        String theDijkstra = GrapfUtils.theDijkstra(grapf, 4);
+        System.out.println(theDijkstra);
+        writeAndRunGraph(theDijkstra);
 
 //        theKR();
     }

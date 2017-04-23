@@ -2,12 +2,12 @@ package pro.prieran.misis.ctg;
 
 import java.util.Locale;
 
-// TODO: Затем Дейкстра, затем выделить двунаправленный граф
+// TODO: Затем выделить двунаправленный граф
 public class GrapfUtils {
     private static final int INFINITY = Integer.MAX_VALUE;
 
     private static final int NO_PARENT = -1;
-    private static final int UNREACH = -2;
+    private static final int UNREACHABLE = -2;
 
     private static final int OUTSIDE = -2;
     private static final int LAST_NODE = -1;
@@ -18,9 +18,47 @@ public class GrapfUtils {
         return null;
     }
 
+    public static String theDijkstra(Grapf grapf, int fromNode) {
+        final int[] lengths = ArrayUtils.newArray(grapf.countOfNodes, INFINITY);
+        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACHABLE);
+        lengths[fromNode] = 0;
+        parents[fromNode] = NO_PARENT;
+
+        int maxLength = 0;
+        for (int i = 0; i < grapf.weights.length; i++) {
+            if (grapf.weights[i] > maxLength) {
+                maxLength = grapf.weights[i];
+            }
+        }
+
+        int countOfBuckets = grapf.countOfNodes * maxLength;
+        Bucket bucket = new Bucket(countOfBuckets, grapf.countOfEdges);
+        bucket.insert(fromNode, 0);
+
+        for (int b = 0; b < countOfBuckets; b++) {
+            int i;
+            while ((i = bucket.get(b)) != Bucket.NOTHING)
+                for (int k = grapf.head[i]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
+                    int toNode = grapf.toArray[k];
+                    int toLength = lengths[toNode];
+
+                    if (lengths[i] + grapf.weights[k] < toLength) {
+                        lengths[toNode] = lengths[i] + grapf.weights[k];
+                        parents[toNode] = k;
+                        if (toLength != INFINITY) {
+                            bucket.remove(toNode, toLength);
+                        }
+                        bucket.insert(toNode, lengths[toNode]);
+                    }
+                }
+        }
+
+        return makeGraphvizLengthsTree(grapf, fromNode, lengths, parents);
+    }
+
     public static String theBellmanFord(Grapf grapf, int fromNode) {
         final int[] lengths = ArrayUtils.newArray(grapf.countOfNodes, INFINITY);
-        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACH);
+        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACHABLE);
         final int[] queue = ArrayUtils.newArray(grapf.countOfNodes, OUTSIDE);
 
         int headQueue = fromNode;
@@ -31,15 +69,15 @@ public class GrapfUtils {
         parents[fromNode] = NO_PARENT;
 
         while (headQueue != LAST_NODE) {
-            int i = headQueue;
+            int currentNode = headQueue;
             headQueue = queue[headQueue];
-            queue[i] = OUTSIDE;
+            queue[currentNode] = OUTSIDE;
 
-            for (int k = grapf.head[i]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
+            for (int k = grapf.head[currentNode]; k != Grapf.NOTHING; k = grapf.nextEdge[k]) {
                 int toNode = grapf.toArray[k];
                 int toLength = lengths[toNode];
-                if (lengths[i] + grapf.weights[k] < toLength) {
-                    lengths[toNode] = lengths[i] + grapf.weights[k];
+                if (lengths[currentNode] + grapf.weights[k] < toLength) {
+                    lengths[toNode] = lengths[currentNode] + grapf.weights[k];
                     parents[toNode] = k;
 
                     if (queue[toNode] == OUTSIDE) {
@@ -63,108 +101,12 @@ public class GrapfUtils {
             }
         }
 
-        /*
-            1. Если иду из четвёртой в восьмую
-		        a. Известно расстояние из 4 до 8 (пусть оно равно 100)
-		        b. Известно, по каким рёбрам я шёл
-		        c. Известны веса этих рёбер
-	        2. Цель:
-		        a. Найти самое большое расстояние от четвёртой вершины до некой наиболее отдалённой
-		        b. Идя из четвёртого ребра в ширину, раскрашивать каждое ребро пропорционально:
-			            i. (расстояние от четвёртого ребра до текущей вершины)/(самое большое расстояние)
-	        3. Алгоритм:
-		        a. Идём по from/toArray, имеем номер ребра
-		        b. Проверяем, что мы идём из той вершины (точнее по тому ребру), из которой надо идти
-		        c. По куда ребро ищем расстояние до исходной вершины
-		        d. По номеру ребра ищем вес ребра
-		            Градиента не будет
-		        e. Градиент в начале пропорционален (расстояние до исходной - вес ребра)/(максимальное расстояние)
-		        f. Градиент в конце пропорционален (расстояние до исходной)/(максимальное расстояние)
-		        g. Color will be in HSV format = "0.833 1.000 0.500" - purple color; We need to change S from 1 to 0
-
-         */
-
-        int maxLength = 0;
-        for (int length : lengths) {
-            if (length > maxLength || length != INFINITY) {
-                maxLength = length;
-            }
-        }
-
-        StringBuilder graph = new StringBuilder();
-        graph.append("digraph {\n");
-        addGraphvizStyle(graph);
-
-        graph.append("\tnode [color=gray, fontcolor=gray]\n");
-
-        for (int k = 0; k < grapf.countOfNodes; k++) {
-            if (parents[k] != UNREACH || fromNode == k) {
-                graph.append("\t\t ").append(k).append(" [color=\"");
-                if (fromNode != k) {
-                    String color = makeHSV(lengths, k, maxLength);
-                    graph.append(color);
-                    graph.append("\", fontcolor=\"");
-                    graph.append(color);
-                    graph.append("\"]\n");
-                } else {
-                    graph.append("black\", shape=star, fontcolor=black]\n");
-                }
-            }
-        }
-
-        graph.append("\n");
-
-        for (int k = 0; k < grapf.fromArray.length; k++) {
-            int from = grapf.fromArray[k];
-            int to = grapf.toArray[k];
-
-            if (from != Grapf.NOTHING && to != Grapf.NOTHING) {
-                graph.append("\t\t");
-
-                graph.append(Integer.toString(from));
-                graph.append(" -> ");
-                graph.append(Integer.toString(to));
-
-                graph.append(" [");
-
-                if (parents[to] == k) {
-                    graph
-                            .append("label=\"")
-                            .append(lengths[to])
-                            .append("\", weight=\"")
-                            .append(grapf.weights[k])
-                            .append("\"");
-
-                    graph.append(", color=\"");
-                    graph.append(makeHSV(lengths, to, maxLength));
-                    graph.append("\"");
-
-                    graph.append(", fontcolor=\"");
-                    graph.append(makeHSV(lengths, to, maxLength));
-                    graph.append("\"");
-                } else {
-                    graph
-                            .append("label=\"")
-                            .append("+")
-                            .append(grapf.weights[k])
-                            .append("\", weight=\"")
-                            .append(grapf.weights[k])
-                            .append("\"");
-                    graph.append(", color = gray, fontcolor = gray");
-                }
-
-                graph.append("];\n");
-            }
-        }
-
-        graph.append("\t}");
-
-        return graph.toString();
+        return makeGraphvizLengthsTree(grapf, fromNode, lengths, parents);
     }
 
     public static String theBFS(Grapf grapf, int fromNode) {
         final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
-        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACH); // Откуда пришли в i-ую вершину (хранится номер дуги)
+        final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACHABLE); // Откуда пришли в i-ую вершину (хранится номер дуги)
 
         final int[] queue = new int[grapf.countOfEdges];
         queue[0] = fromNode;
@@ -204,7 +146,7 @@ public class GrapfUtils {
 
         for (int q = 0; q < grapf.countOfNodes; q++) {
             final int[] lengths = new int[grapf.countOfEdges]; // Растояния до исходной вершины от i-ой вершины
-            final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACH); // Откуда пришли в i-ую вершину (хранится номер дуги)
+            final int[] parents = ArrayUtils.newArray(grapf.countOfNodes, UNREACHABLE); // Откуда пришли в i-ую вершину (хранится номер дуги)
 
             final int[] queue = new int[grapf.countOfEdges];
             queue[0] = q;
@@ -253,7 +195,7 @@ public class GrapfUtils {
         graph.append("\tnode [color=gray, fontcolor=gray]\n");
 
         for (int k = 0; k < grapf.countOfNodes; k++) {
-            if (smallestParents[k] != UNREACH || smallestNode == k) {
+            if (smallestParents[k] != UNREACHABLE || smallestNode == k) {
                 graph.append("\t\t ").append(k).append(" [color=\"");
                 if (smallestNode != k) {
                     graph.append("black\", fontcolor=black]\n");
@@ -431,6 +373,106 @@ public class GrapfUtils {
 
                     graph.append("];\n");
                 }
+            }
+        }
+
+        graph.append("\t}");
+
+        return graph.toString();
+    }
+
+    private static String makeGraphvizLengthsTree(Grapf grapf, int fromNode, int[] lengths, int[] parents) {
+    /*
+        1. Если иду из четвёртой в восьмую
+            a. Известно расстояние из 4 до 8 (пусть оно равно 100)
+            b. Известно, по каким рёбрам я шёл
+            c. Известны веса этих рёбер
+        2. Цель:
+            a. Найти самое большое расстояние от четвёртой вершины до некой наиболее отдалённой
+            b. Идя из четвёртого ребра в ширину, раскрашивать каждое ребро пропорционально:
+                    i. (расстояние от четвёртого ребра до текущей вершины)/(самое большое расстояние)
+        3. Алгоритм:
+            a. Идём по from/toArray, имеем номер ребра
+            b. Проверяем, что мы идём из той вершины (точнее по тому ребру), из которой надо идти
+            c. По куда ребро ищем расстояние до исходной вершины
+            d. По номеру ребра ищем вес ребра
+                Градиента не будет
+            e. Градиент в начале пропорционален (расстояние до исходной - вес ребра)/(максимальное расстояние)
+            f. Градиент в конце пропорционален (расстояние до исходной)/(максимальное расстояние)
+            g. Color will be in HSV format = "0.833 1.000 0.500" - purple color; We need to change S from 1 to 0
+
+     */
+
+        int maxLength = 0;
+        for (int length : lengths) {
+            if (length > maxLength || length != INFINITY) {
+                maxLength = length;
+            }
+        }
+
+        StringBuilder graph = new StringBuilder();
+        graph.append("digraph {\n");
+        addGraphvizStyle(graph);
+
+        graph.append("\tnode [color=gray, fontcolor=gray]\n");
+
+        for (int k = 0; k < grapf.countOfNodes; k++) {
+            if (parents[k] != UNREACHABLE || fromNode == k) {
+                graph.append("\t\t ").append(k).append(" [color=\"");
+                if (fromNode != k) {
+                    String color = makeHSV(lengths, k, maxLength);
+                    graph.append(color);
+                    graph.append("\", fontcolor=\"");
+                    graph.append(color);
+                    graph.append("\"]\n");
+                } else {
+                    graph.append("black\", shape=star, fontcolor=black]\n");
+                }
+            }
+        }
+
+        graph.append("\n");
+
+        for (int k = 0; k < grapf.fromArray.length; k++) {
+            int from = grapf.fromArray[k];
+            int to = grapf.toArray[k];
+
+            if (from != Grapf.NOTHING && to != Grapf.NOTHING) {
+                graph.append("\t\t");
+
+                graph.append(Integer.toString(from));
+                graph.append(" -> ");
+                graph.append(Integer.toString(to));
+
+                graph.append(" [");
+
+                if (parents[to] == k) {
+                    graph
+                            .append("label=\"")
+                            .append(lengths[to])
+                            .append("\", weight=\"")
+                            .append(grapf.weights[k])
+                            .append("\"");
+
+                    graph.append(", color=\"");
+                    graph.append(makeHSV(lengths, to, maxLength));
+                    graph.append("\"");
+
+                    graph.append(", fontcolor=\"");
+                    graph.append(makeHSV(lengths, to, maxLength));
+                    graph.append("\"");
+                } else {
+                    graph
+                            .append("label=\"")
+                            .append("+")
+                            .append(grapf.weights[k])
+                            .append("\", weight=\"")
+                            .append(grapf.weights[k])
+                            .append("\"");
+                    graph.append(", color = gray, fontcolor = gray");
+                }
+
+                graph.append("];\n");
             }
         }
 

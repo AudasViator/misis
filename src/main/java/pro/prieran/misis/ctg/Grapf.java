@@ -11,11 +11,11 @@ public class Grapf {
     // Обойдёмся без геттеров
     public final boolean isBiDirectional;
 
-    public int[] fromArray;  // n, Ребро откуда
+    public int[] fromArray;  // m, Ребро откуда
 
-    public int[] toArray;    // n, Ребро куда
+    public int[] toArray;    // m, Ребро куда
 
-    public int[] weights;    // n, Единственное логичное название
+    public int[] weights;    // m, Единственное логичное название
     public int[] head;       // n, Номер первой дуги (в массиве fromArray), выходящей из i-ой вершины
     public int[] nextEdge;   // m, Номер следующей в списке дуги, выходящей из этой же вершины (-1, если последняя)
 
