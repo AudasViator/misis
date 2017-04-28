@@ -13,6 +13,112 @@ public class GrapfUtils {
 
     private static final int EMPTY_COMPONENT = -1;
 
+    private static final int NO_WAY = -42;
+
+    public static String theKR(int firstNode, int secondNode, int thirdNode) {
+
+        final int countOfNodes = 30;
+        final int[] fromArray = {0, 21, 15, 7, 6, 13, 28, 4, 28, 4, 20, 19, 1, 5, 22, 4, 22, 22, 16, 16, 19, 24, 0, 12, 10, 26, 21, 3, 13, 3};
+        final int[] toArray = {1, 7, 6, 18, 11, 22, 16, 22, 8, 9, 21, 10, 18, 19, 15, 0, 10, 0, 3, 20, 8, 9, 5, 22, 16, 20, 15, 12, 24, 28};
+        final int[] weights = {1, 16, 12, 1, 7, 14, 2, 18, 15, 10, 3, 19, 5, 8, 12, 4, 8, 12, 17, 9, 16, 19, 1, 5, 9, 1, 6, 7, 15, 17};
+
+        final int countOfEdges = fromArray.length;
+
+        ArrayUtils.sortArraysLikeFirst(weights, fromArray, toArray);
+
+        final DSU dsu = new DSU(countOfEdges);
+        final int[] sTree = ArrayUtils.newArray(countOfEdges, NO_WAY);
+        int w = 0;
+
+        for (int k = 0; k < countOfEdges && w < countOfNodes - 1; k++) {
+            int from = fromArray[k];
+            int to = toArray[k];
+
+            int fromSet = dsu.findSet(from);
+            int toSet = dsu.findSet(to);
+
+            if (fromSet != toSet) {
+                sTree[w] = k;
+                w++;
+                dsu.unionSets(fromSet, toSet);
+            }
+
+            int f = dsu.findSet(firstNode);
+            int s = dsu.findSet(secondNode);
+            int t = dsu.findSet(thirdNode);
+            if (f == s && s == t) {
+                break;
+            }
+        }
+
+        for (int l = 0; l < countOfNodes; l++) {
+            for (int m = 0; m < countOfNodes; m++) {
+                int[] countOfEdgesFromNode = new int[countOfNodes];
+                int[] numberOfEdgeFromNode = new int[countOfNodes];
+
+                for (int node = 0; node < countOfNodes; node++) {
+                    if ((node == firstNode || node == secondNode || node == thirdNode)) {
+                        continue;
+                    }
+
+                    for (int k = 0; k < toArray.length; k++) {
+                        if ((fromArray[k] == node || toArray[k] == node) && ArrayUtils.contains(sTree, k)) {
+                            countOfEdgesFromNode[node]++;
+                            numberOfEdgeFromNode[node] = k;
+                        }
+                    }
+                }
+
+                for (int node = 0; node < countOfEdgesFromNode.length; node++) {
+                    if (countOfEdgesFromNode[node] == 1) {
+                        for (int k = 0; k < sTree.length; k++) {
+                            if (sTree[k] == numberOfEdgeFromNode[node]) {
+                                sTree[k] = NO_WAY;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        StringBuilder graph = new StringBuilder();
+        graph.append("digraph {\n");
+        addGraphvizStyle(graph);
+
+        for (int k = 0; k < countOfEdges; k++) {
+            int begin = fromArray[k];
+            int end = toArray[k];
+            int weight = weights[k];
+
+            if (begin != Grapf.NOTHING && end != Grapf.NOTHING) {
+                graph.append("\t\t");
+
+                graph.append(Integer.toString(begin));
+                graph.append(" -> ");
+                graph.append(Integer.toString(end));
+
+                graph.append(" [dir=both, ");
+
+                graph
+                        .append("label=\"")
+                        .append(weight)
+                        .append("\", weight=\"")
+                        .append(weight)
+                        .append("\"");
+
+                if (ArrayUtils.contains(sTree, k)) {
+                    graph.append(", color = red, ");
+                }
+
+                graph.append("];\n");
+            }
+        }
+
+        graph.append("\t}");
+
+        return graph.toString();
+    }
+
     public static String theDFS(Grapf grapf) {
         if (!grapf.isBiDirectional) {
             throw new IllegalStateException("Graph is not bidirectional");

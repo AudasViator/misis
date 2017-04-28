@@ -18,6 +18,9 @@ public class Main {
         final int[] to = {1, 7, 6, 18, 11, 22, 16, 22, 8, 9, 21, 10, 18, 19, 15, 0, 10, 0, 3, 20, 8, 9, 5, 22, 16, 20, 15, 12, 24, 28};
         final int[] weights = {1, 16, 12, 1, 7, 14, 2, 18, 15, 10, 3, 19, 5, 8, 12, 4, 8, 12, 17, 9, 16, 19, 1, 5, 9, 1, 6, 7, 15, 17};
 
+        String theKR = GrapfUtils.theKR(1, 5, 7);
+        System.out.println(theKR);
+        writeAndRunGraph(theKR);
 
 //        Grapf grapf = new Grapf(from, to, weights, false);
 //        String theGraph = GrapfUtils.makeGraphvizString(grapf);
@@ -39,10 +42,10 @@ public class Main {
 //        System.out.println(theDijkstra);
 //        writeAndRunGraph(theDijkstra);
 
-        Grapf grapf = new Grapf(from, to, null, false);
-        String theBFS = GrapfUtils.theBFS(grapf, 4);
-        System.out.println(theBFS);
-        writeAndRunGraph(theBFS);
+//        Grapf grapf = new Grapf(from, to, null, false);
+//        String theBFS = GrapfUtils.theBFS(grapf, 4);
+//        System.out.println(theBFS);
+//        writeAndRunGraph(theBFS);
 
 //        Grapf grapf = new Grapf(from, to, weights, true);
 //        String theDFS = GrapfUtils.theDFS(grapf);
