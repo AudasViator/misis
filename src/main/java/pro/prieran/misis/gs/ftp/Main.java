@@ -1,4 +1,4 @@
-package pro.prieran.misis.gs;
+package pro.prieran.misis.gs.ftp;
 
 import java.io.IOException;
 

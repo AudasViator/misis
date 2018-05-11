@@ -1,17 +1,22 @@
-package pro.prieran.misis.gs;
+package pro.prieran.misis.gs.ftp;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javafx.util.Pair;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.*;
 
+/**
+ * Ужасный код, полностью выполнивший свою задачу -- быть сданным в качестве лабы
+ */
 public class FtpServer {
     private final static int DEFAULT_PORT = 21;
 
     private final static String DEFAULT_USERNAME = "some_username";
     private final static String DEFAULT_PASSWORD = "some_password";
+
+    private final Map<String, List<Byte>> loadedFiles = new HashMap<>();
 
     private DataOutputStream infoOutputStream;
     private BufferedReader infoInputStream;
@@ -81,8 +86,6 @@ public class FtpServer {
             writeToInfoSocket("257 \"" + (currentDir.startsWith("/") ? "" : "/") + currentDir + "\".\n");
         } else if (command.startsWith("TYPE")) {
             writeToInfoSocket("200.\n");
-        } else if (command.startsWith("EPSV")) {
-            writeToInfoSocket("500.\n");
         } else if (command.startsWith("CWD")) {
             String newDir = command.substring(4);
             if (!newDir.equals("..")) {
@@ -97,8 +100,41 @@ public class FtpServer {
                 }
             }
             writeToInfoSocket("250 OK.\n");
+        } else if (command.startsWith("CDUP")) {
+            currentDir = "/";
+            writeToInfoSocket("200 OK.\n");
+        } else if (command.startsWith("STOR")) {
+            String fileName = command.substring(5);
+            writeToInfoSocket("150 OK.\n");
+
+            dataOutputStreamWrapper.waitUntilServerSocketConnected();
+            DataInputStream dataInputStream = dataOutputStreamWrapper.getDataInputStream();
+            ArrayList<Byte> bytes = new ArrayList<>();
+            while (true) {
+                try {
+                    byte b = dataInputStream.readByte();
+                    bytes.add(b);
+                } catch (Throwable thr) {
+                    break;
+                }
+            }
+
+            loadedFiles.put(fileName, bytes);
+
+            writeToInfoSocket("226 OK.\n");
         } else if (command.startsWith("RETR")) {
             String fileName = command.substring(5);
+
+            List<Byte> loadedFile = loadedFiles.getOrDefault(fileName, null);
+            if (loadedFile != null) {
+                byte[] bytes = new byte[loadedFile.size()];
+                for (int i = 0; i < bytes.length; i++) {
+                    bytes[i] = loadedFile.get(i);
+                }
+                System.out.println("SEND FILE " + fileName);
+                dataOutputStreamWrapper.blockingWriteToStream(bytes);
+            }
+
             if (fileName.equals("README.txt")) {
                 dataOutputStreamWrapper.blockingWriteToStream("Some text that was sent");
             } else {
@@ -107,8 +143,8 @@ public class FtpServer {
             dataOutputStreamWrapper.closeStream();
             writeToInfoSocket("150 OK.\n");
             writeToInfoSocket("226 OK.\n");
-        } else if (command.startsWith("PASV")) {
-            int portFirstPart = 207;
+        } else if (command.startsWith("PASV") || command.startsWith("EPSV")) {
+            int portFirstPart = 107;
             int portSecondPart = 56;
             int port = portFirstPart * 256 + portSecondPart;
 
@@ -117,27 +153,39 @@ public class FtpServer {
             }
             dataOutputStreamWrapper = new DataOutputStreamWrapper(port);
 
-            writeToInfoSocket("227 Entering Passive Mode (172,16,0,2," + portFirstPart + "," + portSecondPart + ").\n");
+            writeToInfoSocket("227 Entering Passive Mode (127,0,0,1," + portFirstPart + "," + portSecondPart + ").\n");
         } else if (command.startsWith("LIST")) {
             try {
                 writeToInfoSocket("150 Accepted data connection.\n");
 
-                dataOutputStreamWrapper.blockingWriteToStream("drwx------ 1 owner group           512 Jul  7 11:35 .\n");
-                if (!"/".equals(currentDir)) {
-                    dataOutputStreamWrapper.blockingWriteToStream("drwx------ 1 owner group           512 Jul  7 11:35 ..\n");
-                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            dataOutputStreamWrapper.blockingWriteToStream("drwx------ 1 owner group           512 Jul  7 11:35 .\n");
+                            if (!"/".equals(currentDir)) {
+                                dataOutputStreamWrapper.blockingWriteToStream("drwx------ 1 owner group           512 Jul  7 11:35 ..\n");
+                            }
 
-                if (currentDir.contains("SomeFolder")) {
-                    dataOutputStreamWrapper.blockingWriteToStream("-rw-r--r-- 1 owner group           213 Aug 26 16:31 CurrentFolder.txt\n");
-                } else {
-                    dataOutputStreamWrapper.blockingWriteToStream("drw-r--r-- 1 owner group           213 Aug 26 16:31 SomeFolder\n");
-                    dataOutputStreamWrapper.blockingWriteToStream("-rw-r--r-- 1 owner group           213 Aug 26 16:31 README.txt\n");
-                }
+                            if (currentDir.contains("SomeFolder")) {
+                                dataOutputStreamWrapper.blockingWriteToStream("-rw-r--r-- 1 owner group           213 Aug 26 16:31 CurrentFolder.txt\n");
+                            } else {
+                                dataOutputStreamWrapper.blockingWriteToStream("drw-r--r-- 1 owner group           213 Aug 26 16:31 SomeFolder\n");
+                                dataOutputStreamWrapper.blockingWriteToStream("-rw-r--r-- 1 owner group           213 Aug 26 16:31 README.txt\n");
+                                for (String s : loadedFiles.keySet()) {
+                                    dataOutputStreamWrapper.blockingWriteToStream("-rw-r--r-- 1 owner group           213 Aug 26 16:31 " + s + "\n");
+                                }
+                            }
 
-                dataOutputStreamWrapper.closeStream();
+                            dataOutputStreamWrapper.closeStream();
+                            writeToInfoSocket("226 Directory send OK.\n");
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
 
-                writeToInfoSocket("226 Directory send OK.\n");
-            } catch (InterruptedException e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         } else {
